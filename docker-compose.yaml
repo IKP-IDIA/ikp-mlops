@@ -1,0 +1,61 @@
+version: '3'
+
+name: mlops-stack
+services:
+  # minio:
+  #   image: minio/minio:latest
+  #   container_name: minio_mlops
+  #   ports:
+  #     - ${MINIO_HOST_PORT}:${MINIO_CONT_PORT}
+  #     - ${MINIO_HOST_CONSOLE_PORT}:${MINIO_CONT_CONSOLE_PORT}
+  #   volumes:
+  #     - ${MINIO_HOST_CERT_DIR}:${MINIO_CONT_CERT_DIR}
+  #     - ${MINIO_HOST_DATA_DIR}:${MINIO_CONT_DATA_DIR}
+  #   environment:
+  #     - MINIO_ADDRESS=:${MINIO_CONT_PORT}
+  #     - MINIO_CONSOLE_ADDRESS=:${MINIO_CONT_CONSOLE_PORT}
+  #   env_file:
+  #     - .env
+  #   networks:
+  #     - mlops-net
+  #   command: server ${MINIO_CONT_DATA_DIR} --certs-dir ${MINIO_CONT_CERT_DIR}
+  #   restart: unless-stopped
+
+  # postgres:
+  #   image: postgres:latest
+  #   container_name: postgres_mlops
+  #   ports:
+  #     - ${POSTGRES_HOST_PORT}:${POSTGRES_CONT_PORT}
+  #   volumes:
+  #     - ./postgres/init/init.sql:/docker-entrypoint-initdb.d/init.sql
+  #     - ./postgres/data:/var/lib/postgresql/data
+  #   env_file:
+  #     - .env
+  #   networks:
+  #     - mlops-net
+  #   restart: unless-stopped
+
+  mlflow:
+    build: ./mlflow
+    image: mlflow
+    container_name: mlflow_mlops
+    #depends_on:
+      #- minio
+      #- postgres
+    ports:
+      - ${MLFLOW_HOST_PORT}:${MLFLOW_CONT_PORT}
+    volumes:
+      - ${MLFLOW_HOST_CONFIG_PATH}:${MLFLOW_CONT_CONFIG_PATH}
+    environment:
+      - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER}
+      - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD}
+    env_file:
+      - .env
+    command: mlflow server --app-name basic-auth
+    networks:
+      - mlops-net
+    restart: unless-stopped
+
+networks:
+  mlops-net:
+    driver: bridge
