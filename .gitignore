@@ -4,6 +4,11 @@ postgres/data/
 __pycache__/
 *.pyc
 .pytest_cache
-data/
+
+data/*
+
+!data/.gitignore
+!data/*.dvc
+
 *.xlsx
 *.csv
