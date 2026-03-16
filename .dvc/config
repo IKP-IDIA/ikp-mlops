@@ -1,0 +1,8 @@
+[core]
+    remote = myminio
+['remote "myminio"']
+    url = s3://mlflow/dvc
+    endpointurl = http://10.1.0.250:9000
+    ssl_verify = false
+    access_key_id = minio
+    secret_access_key = minio123

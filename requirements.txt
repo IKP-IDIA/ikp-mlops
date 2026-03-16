@@ -81,4 +81,4 @@ Werkzeug==1.0.1
 widgetsnbextension==3.5.1
 xgboost>=1.7.5
 mlflow
-kserve
+boto3
