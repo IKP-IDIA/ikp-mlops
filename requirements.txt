@@ -82,3 +82,7 @@ widgetsnbextension==3.5.1
 xgboost>=1.7.5
 mlflow
 boto3
+
+
+#pip install pandas numpy scikit-learn tensorflow mlflow python-dotenv 
+#pip install python-box ensure pyYAML
