@@ -47,15 +47,16 @@ with mlflow.start_run(run_name=f"Full_Pipeline_{datetime.now().strftime('%Y%m%d'
       raise e
   
   STAGE_NAME = "Model Training"
-  try:
-      logger.info(f"*******************")
-      logger.info(f">>>>>> stage {STAGE_NAME} started <<<<<<")
-      model_trainer = ModelTrainingPipeline()
-      model_trainer.main(experiment_name=EXPERIMENT_NAME)
-      logger.info(f">>>>>> stage {STAGE_NAME} completed <<<<<<\n\nx==========x")
-  except Exception as e:
-      logger.exception(e)
-      raise e
+  with mlflow.start_run(run_name="Training_Stage", nested=True):
+    try:
+        logger.info(f"*******************")
+        logger.info(f">>>>>> stage {STAGE_NAME} started <<<<<<")
+        model_trainer = ModelTrainingPipeline()
+        model_trainer.main(experiment_name=EXPERIMENT_NAME)
+        logger.info(f">>>>>> stage {STAGE_NAME} completed <<<<<<\n\nx==========x")
+    except Exception as e:
+        logger.exception(e)
+        raise e
   
   STAGE_NAME = "Evaluation stage"
   try:
