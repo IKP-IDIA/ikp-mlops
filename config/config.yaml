@@ -20,4 +20,5 @@ training:
   training_data: artifacts/data_ingestion
 
 evaluation:
+  path_of_model: artifacts/training/model.keras
   training_data: artifacts/data_ingestion

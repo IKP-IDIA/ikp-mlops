@@ -3,3 +3,232 @@
 [2026-03-17 00:59:53,741: WARNING: connectionpool: Retrying (Retry(total=4, connect=4, read=7, redirect=7, status=7)) after connection broken by 'NewConnectionError("HTTPConnection(host='10.1.0.150', port=5000): Failed to establish a new connection: [Errno 111] Connection refused")': /api/2.0/mlflow/experiments/get-by-name?experiment_name=Fraud_Detection_v1]
 [2026-03-17 01:00:09,922: WARNING: connectionpool: Retrying (Retry(total=3, connect=3, read=7, redirect=7, status=7)) after connection broken by 'NewConnectionError("HTTPConnection(host='10.1.0.150', port=5000): Failed to establish a new connection: [Errno 111] Connection refused")': /api/2.0/mlflow/experiments/get-by-name?experiment_name=Fraud_Detection_v1]
 [2026-03-17 01:00:42,251: WARNING: connectionpool: Retrying (Retry(total=2, connect=2, read=7, redirect=7, status=7)) after connection broken by 'NewConnectionError("HTTPConnection(host='10.1.0.150', port=5000): Failed to establish a new connection: [Errno 111] Connection refused")': /api/2.0/mlflow/experiments/get-by-name?experiment_name=Fraud_Detection_v1]
+[2026-03-17 22:19:31,682: WARNING: connectionpool: Retrying (Retry(total=6, connect=6, read=7, redirect=7, status=7)) after connection broken by 'NewConnectionError("HTTPConnection(host='10.1.0.150', port=5000): Failed to establish a new connection: [Errno 111] Connection refused")': /api/2.0/mlflow/experiments/get-by-name?experiment_name=Fraud_Detection_v1]
+[2026-03-17 22:19:36,634: WARNING: connectionpool: Retrying (Retry(total=5, connect=5, read=7, redirect=7, status=7)) after connection broken by 'NewConnectionError("HTTPConnection(host='10.1.0.150', port=5000): Failed to establish a new connection: [Errno 111] Connection refused")': /api/2.0/mlflow/experiments/get-by-name?experiment_name=Fraud_Detection_v1]
+[2026-03-17 22:19:45,319: WARNING: connectionpool: Retrying (Retry(total=4, connect=4, read=7, redirect=7, status=7)) after connection broken by 'NewConnectionError("HTTPConnection(host='10.1.0.150', port=5000): Failed to establish a new connection: [Errno 111] Connection refused")': /api/2.0/mlflow/experiments/get-by-name?experiment_name=Fraud_Detection_v1]
+[2026-03-17 22:20:02,207: WARNING: connectionpool: Retrying (Retry(total=3, connect=3, read=7, redirect=7, status=7)) after connection broken by 'NewConnectionError("HTTPConnection(host='10.1.0.150', port=5000): Failed to establish a new connection: [Errno 111] Connection refused")': /api/2.0/mlflow/experiments/get-by-name?experiment_name=Fraud_Detection_v1]
+[2026-03-17 22:25:24,555: INFO: main: >>>>>> Stage Data Ingestion stage started <<<<<<]
+[2026-03-17 22:25:24,557: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-17 22:25:24,559: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-17 22:25:24,559: INFO: common: created directory at: artifacts]
+[2026-03-17 22:25:24,559: INFO: common: created directory at: artifacts/data_ingestion]
+[2026-03-17 22:25:24,559: ERROR: main: "'ConfigBox' object has no attribute 'onedrive_file_path'"]
+Traceback (most recent call last):
+  File "box/box.py", line 605, in box.box.Box.__getitem__
+KeyError: 'onedrive_file_path'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "box/box.py", line 644, in box.box.Box.__getattr__
+  File "box/box.py", line 632, in box.box.Box.__getitem__
+box.exceptions.BoxKeyError: "'onedrive_file_path'"
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "box/box.py", line 646, in box.box.Box.__getattr__
+AttributeError: 'ConfigBox' object has no attribute 'onedrive_file_path'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "box/config_box.py", line 29, in box.config_box.ConfigBox.__getattr__
+  File "box/box.py", line 660, in box.box.Box.__getattr__
+box.exceptions.BoxKeyError: "'ConfigBox' object has no attribute 'onedrive_file_path'"
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "box/box.py", line 605, in box.box.Box.__getitem__
+KeyError: 'onedrive_file_path'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "box/box.py", line 644, in box.box.Box.__getattr__
+  File "box/box.py", line 632, in box.box.Box.__getitem__
+box.exceptions.BoxKeyError: "'onedrive_file_path'"
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "box/box.py", line 646, in box.box.Box.__getattr__
+AttributeError: 'ConfigBox' object has no attribute 'onedrive_file_path'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ikp-4090/june/MLOps/main.py", line 32, in <module>
+    obj.main()
+  File "/home/ikp-4090/june/MLOps/src/fraud_prediction/pipeline/stage_01_data_ingestion.py", line 13, in main
+    data_ingestion_config = config.get_data_ingestion_config()
+  File "/home/ikp-4090/june/MLOps/src/fraud_prediction/config/configuration.py", line 30, in get_data_ingestion_config
+    onedrive_file_path=config.onedrive_file_path,
+  File "box/config_box.py", line 31, in box.config_box.ConfigBox.__getattr__
+  File "box/box.py", line 660, in box.box.Box.__getattr__
+box.exceptions.BoxKeyError: "'ConfigBox' object has no attribute 'onedrive_file_path'"
+[2026-03-17 22:27:06,603: INFO: main: >>>>>> Stage Data Ingestion stage started <<<<<<]
+[2026-03-17 22:27:06,605: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-17 22:27:06,605: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-17 22:27:06,605: INFO: common: created directory at: artifacts]
+[2026-03-17 22:27:06,605: INFO: common: created directory at: artifacts/data_ingestion]
+[2026-03-17 22:27:06,605: INFO: data_ingestion: Using local data from DVC: data/fraud_0.1origbase.csv]
+[2026-03-17 22:27:06,634: INFO: data_ingestion: Successfully copied data to artifacts/data_ingestion/fraud_0.1origbase.csv]
+[2026-03-17 22:27:06,635: INFO: data_ingestion: File is not a zip, skipping extraction.]
+[2026-03-17 22:27:06,635: INFO: main: >>>>>> Stage Data Ingestion stage completed <<<<<<
+
+x==========x]
+[2026-03-17 22:27:06,635: INFO: main: ***************]
+[2026-03-17 22:27:06,635: INFO: main: >>>>>> Stage Prepare base model started <<<<<<]
+[2026-03-17 22:27:06,635: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-17 22:27:06,636: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-17 22:27:06,636: INFO: common: created directory at: artifacts]
+[2026-03-17 22:27:06,636: INFO: common: created directory at: artifacts/prepare_base_model]
+[2026-03-17 22:27:07,615: WARNING: saving_api: You are saving your model as an HDF5 file via `model.save()` or `keras.saving.save_model(model)`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')` or `keras.saving.save_model(model, 'my_model.keras')`. ]
+[2026-03-17 22:27:07,620: INFO: prepare_base_model: Model saved at: artifacts/prepare_base_model/base_model.h5]
+[2026-03-17 22:27:07,629: WARNING: saving_api: You are saving your model as an HDF5 file via `model.save()` or `keras.saving.save_model(model)`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')` or `keras.saving.save_model(model, 'my_model.keras')`. ]
+[2026-03-17 22:27:07,634: INFO: prepare_base_model: Model saved at: artifacts/prepare_base_model/base_model_updated.h5]
+[2026-03-17 22:27:07,634: INFO: main: >>>>>> Stage Prepare base model completed <<<<<<
+
+x==========x]
+[2026-03-17 22:27:07,634: INFO: main: *******************]
+[2026-03-17 22:27:07,634: INFO: main: >>>>>> stage Model Training started <<<<<<]
+[2026-03-17 22:27:07,635: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-17 22:27:07,636: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-17 22:27:07,636: INFO: common: created directory at: artifacts]
+[2026-03-17 22:27:07,636: INFO: common: created directory at: artifacts/training]
+[2026-03-17 22:27:07,701: INFO: stage_03_model_trainer: Active Parent Run ID : 680cfc1e32744637a3eabcdb81ce7a7e]
+[2026-03-17 22:27:07,786: WARNING: saving_utils: Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.]
+[2026-03-17 22:27:08,914: INFO: credentials: Found credentials in environment variables.]
+[2026-03-17 22:27:18,977: ERROR: main: [Errno 2] No such file or directory: 'artifacts/training/model.keras']
+Traceback (most recent call last):
+  File "/home/ikp-4090/june/MLOps/main.py", line 54, in <module>
+    model_trainer.main(experiment_name=EXPERIMENT_NAME)
+  File "/home/ikp-4090/june/MLOps/src/fraud_prediction/pipeline/stage_03_model_trainer.py", line 32, in main
+    training.train(experiment_name=experiment_name) #create child run in side this step
+  File "/home/ikp-4090/june/MLOps/src/fraud_prediction/components/model_trainer.py", line 152, in train
+    mlflow.log_artifact(self.config.trained_model_path)
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/mlflow/tracking/fluent.py", line 1533, in log_artifact
+    MlflowClient().log_artifact(run_id, local_path, artifact_path)
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/mlflow/tracking/client.py", line 2767, in log_artifact
+    self._tracking_client.log_artifact(run_id, local_path, artifact_path)
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/mlflow/tracking/_tracking_service/client.py", line 678, in log_artifact
+    artifact_repo.log_artifact(local_path, artifact_path)
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/mlflow/store/artifact/s3_artifact_repo.py", line 275, in log_artifact
+    self._upload_file(
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/mlflow/store/artifact/s3_artifact_repo.py", line 255, in _upload_file
+    s3_client.upload_file(Filename=local_file, Bucket=bucket, Key=key, ExtraArgs=extra_args)
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/botocore/context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/boto3/s3/inject.py", line 175, in upload_file
+    return transfer.upload_file(
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/boto3/s3/transfer.py", line 452, in upload_file
+    future.result()
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/s3transfer/futures.py", line 111, in result
+    return self._coordinator.result()
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/s3transfer/futures.py", line 287, in result
+    raise self._exception
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/s3transfer/tasks.py", line 272, in _main
+    self._submit(transfer_future=transfer_future, **kwargs)
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/s3transfer/upload.py", line 596, in _submit
+    upload_input_manager.provide_transfer_size(transfer_future)
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/s3transfer/upload.py", line 245, in provide_transfer_size
+    self._osutil.get_file_size(transfer_future.meta.call_args.fileobj)
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/s3transfer/utils.py", line 262, in get_file_size
+    return os.path.getsize(filename)
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/genericpath.py", line 50, in getsize
+    return os.stat(filename).st_size
+FileNotFoundError: [Errno 2] No such file or directory: 'artifacts/training/model.keras'
+[2026-03-17 22:41:26,564: INFO: main: >>>>>> Stage Data Ingestion stage started <<<<<<]
+[2026-03-17 22:41:26,566: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-17 22:41:26,566: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-17 22:41:26,567: INFO: common: created directory at: artifacts]
+[2026-03-17 22:41:26,567: INFO: common: created directory at: artifacts/data_ingestion]
+[2026-03-17 22:41:26,567: INFO: data_ingestion: Using local data from DVC: data/fraud_0.1origbase.csv]
+[2026-03-17 22:41:26,592: INFO: data_ingestion: Successfully copied data to artifacts/data_ingestion/fraud_0.1origbase.csv]
+[2026-03-17 22:41:26,593: INFO: data_ingestion: File is not a zip, skipping extraction.]
+[2026-03-17 22:41:26,593: INFO: main: >>>>>> Stage Data Ingestion stage completed <<<<<<
+
+x==========x]
+[2026-03-17 22:41:26,593: INFO: main: ***************]
+[2026-03-17 22:41:26,593: INFO: main: >>>>>> Stage Prepare base model started <<<<<<]
+[2026-03-17 22:41:26,593: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-17 22:41:26,594: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-17 22:41:26,594: INFO: common: created directory at: artifacts]
+[2026-03-17 22:41:26,594: INFO: common: created directory at: artifacts/prepare_base_model]
+[2026-03-17 22:41:27,287: WARNING: saving_api: You are saving your model as an HDF5 file via `model.save()` or `keras.saving.save_model(model)`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')` or `keras.saving.save_model(model, 'my_model.keras')`. ]
+[2026-03-17 22:41:27,292: INFO: prepare_base_model: Model saved at: artifacts/prepare_base_model/base_model.h5]
+[2026-03-17 22:41:27,301: WARNING: saving_api: You are saving your model as an HDF5 file via `model.save()` or `keras.saving.save_model(model)`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')` or `keras.saving.save_model(model, 'my_model.keras')`. ]
+[2026-03-17 22:41:27,306: INFO: prepare_base_model: Model saved at: artifacts/prepare_base_model/base_model_updated.h5]
+[2026-03-17 22:41:27,306: INFO: main: >>>>>> Stage Prepare base model completed <<<<<<
+
+x==========x]
+[2026-03-17 22:41:27,306: INFO: main: *******************]
+[2026-03-17 22:41:27,306: INFO: main: >>>>>> stage Model Training started <<<<<<]
+[2026-03-17 22:41:27,307: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-17 22:41:27,308: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-17 22:41:27,308: INFO: common: created directory at: artifacts]
+[2026-03-17 22:41:27,308: INFO: common: created directory at: artifacts/training]
+[2026-03-17 22:41:27,372: INFO: stage_03_model_trainer: Active Parent Run ID : ec83a0bf0c7f42b7a8a0c033a552241d]
+[2026-03-17 22:41:27,448: WARNING: saving_utils: Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.]
+[2026-03-17 22:41:28,442: ERROR: main: name 'logger' is not defined]
+Traceback (most recent call last):
+  File "/home/ikp-4090/june/MLOps/main.py", line 54, in <module>
+    model_trainer.main(experiment_name=EXPERIMENT_NAME)
+  File "/home/ikp-4090/june/MLOps/src/fraud_prediction/pipeline/stage_03_model_trainer.py", line 31, in main
+    training.prepare_data()
+  File "/home/ikp-4090/june/MLOps/src/fraud_prediction/components/model_trainer.py", line 77, in prepare_data
+    logger.info(f"Data Cleaning: Remaining rows: {self.rows_after} (Lost: {self.rows_lost})")
+NameError: name 'logger' is not defined
+[2026-03-17 22:44:08,597: INFO: main: >>>>>> Stage Data Ingestion stage started <<<<<<]
+[2026-03-17 22:44:08,599: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-17 22:44:08,600: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-17 22:44:08,600: INFO: common: created directory at: artifacts]
+[2026-03-17 22:44:08,600: INFO: common: created directory at: artifacts/data_ingestion]
+[2026-03-17 22:44:08,600: INFO: data_ingestion: Using local data from DVC: data/fraud_0.1origbase.csv]
+[2026-03-17 22:44:08,629: INFO: data_ingestion: Successfully copied data to artifacts/data_ingestion/fraud_0.1origbase.csv]
+[2026-03-17 22:44:08,629: INFO: data_ingestion: File is not a zip, skipping extraction.]
+[2026-03-17 22:44:08,629: INFO: main: >>>>>> Stage Data Ingestion stage completed <<<<<<
+
+x==========x]
+[2026-03-17 22:44:08,629: INFO: main: ***************]
+[2026-03-17 22:44:08,629: INFO: main: >>>>>> Stage Prepare base model started <<<<<<]
+[2026-03-17 22:44:08,630: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-17 22:44:08,630: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-17 22:44:08,631: INFO: common: created directory at: artifacts]
+[2026-03-17 22:44:08,631: INFO: common: created directory at: artifacts/prepare_base_model]
+[2026-03-17 22:44:09,396: WARNING: saving_api: You are saving your model as an HDF5 file via `model.save()` or `keras.saving.save_model(model)`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')` or `keras.saving.save_model(model, 'my_model.keras')`. ]
+[2026-03-17 22:44:09,401: INFO: prepare_base_model: Model saved at: artifacts/prepare_base_model/base_model.h5]
+[2026-03-17 22:44:09,411: WARNING: saving_api: You are saving your model as an HDF5 file via `model.save()` or `keras.saving.save_model(model)`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')` or `keras.saving.save_model(model, 'my_model.keras')`. ]
+[2026-03-17 22:44:09,416: INFO: prepare_base_model: Model saved at: artifacts/prepare_base_model/base_model_updated.h5]
+[2026-03-17 22:44:09,416: INFO: main: >>>>>> Stage Prepare base model completed <<<<<<
+
+x==========x]
+[2026-03-17 22:44:09,416: INFO: main: *******************]
+[2026-03-17 22:44:09,416: INFO: main: >>>>>> stage Model Training started <<<<<<]
+[2026-03-17 22:44:09,417: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-17 22:44:09,418: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-17 22:44:09,418: INFO: common: created directory at: artifacts]
+[2026-03-17 22:44:09,418: INFO: common: created directory at: artifacts/training]
+[2026-03-17 22:44:09,488: INFO: stage_03_model_trainer: Active Parent Run ID : d77bd65b113f4794ba9e71cb52243850]
+[2026-03-17 22:44:09,572: WARNING: saving_utils: Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.]
+[2026-03-17 22:44:10,057: INFO: model_trainer: Data Cleaning: Remaining rows: 2463 (Lost: 0)]
+[2026-03-17 22:44:10,845: INFO: credentials: Found credentials in environment variables.]
+[2026-03-17 22:44:21,053: INFO: main: >>>>>> stage Model Training completed <<<<<<
+
+x==========x]
+[2026-03-17 22:44:21,053: INFO: main: *******************]
+[2026-03-17 22:44:21,053: INFO: main: >>>>>> stage Evaluation stage started <<<<<<]
+[2026-03-17 22:44:21,054: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-17 22:44:21,055: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-17 22:44:21,055: INFO: common: created directory at: artifacts]
+[2026-03-17 22:44:49,122: INFO: common: json file saved at: scores.json]
+[2026-03-17 22:44:49,220: INFO: common: json file saved at: scores.json]
+[2026-03-17 22:44:49,388: ERROR: main: 'Evaluation' object has no attribute 'log_into_mlflow']
+Traceback (most recent call last):
+  File "/home/ikp-4090/june/MLOps/main.py", line 65, in <module>
+    model_evalution.main(experiment_name=EXPERIMENT_NAME)
+  File "/home/ikp-4090/june/MLOps/src/fraud_prediction/pipeline/stage_04_model_evaluation.py", line 22, in main
+    evaluation.log_into_mlflow(experiment_name=experiment_name)
+AttributeError: 'Evaluation' object has no attribute 'log_into_mlflow'

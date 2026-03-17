@@ -27,7 +27,7 @@ class ConfigurationManager:
 
         data_ingestion_config = DataIngestionConfig(
             root_dir=config.root_dir,
-            onedrive_file_path=config.onedrive_file_path,
+            onedrive_file_path="None",
             local_data_file=config.local_data_file,
             unzip_dir=config.unzip_dir 
         )

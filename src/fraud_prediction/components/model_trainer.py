@@ -13,6 +13,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from imblearn.under_sampling import RandomUnderSampler
 from sklearn.metrics import recall_score, precision_score, f1_score
+from fraud_prediction import logger
 
 class Training: 
     def __init__(self, config: TrainingConfig):
@@ -67,8 +68,15 @@ class Training:
 
         # ป้องกัน NotImplementedError ด้วย dtype=int
         df = pd.get_dummies(df, columns=['type'], dtype=int)
+        
+        rows_before = df.shape[0]
         df = df.dropna()
 
+        self.rows_after = df.shape[0]
+        self.rows_lost = rows_before - self.rows_after
+        
+        logger.info(f"Data Cleaning: Remaining rows: {self.rows_after} (Lost: {self.rows_lost})")
+        
         # 4. แยก Feature และ Target (isFraud)
         target_col = 'isFraud'
         X = df.drop(columns=[target_col])
@@ -112,6 +120,11 @@ class Training:
             mlflow.keras.autolog(log_models=True)
 
             print(f"🚀 Starting training on MLflow: {mlflow.get_tracking_uri()}")
+            
+            self.save_model(
+                path=self.config.trained_model_path,
+                model=self.model
+            )
 
             # 2. เริ่มต้นบันทึกผล
             with mlflow.start_run(run_name="Model_Training_Fit", nested=True):
@@ -122,6 +135,8 @@ class Training:
                     "sampling_ratio": self.config.params_sampling_ratio,
                     "input_features": self.X_train.shape[1]
                 })
+                mlflow.log_metric("training_rows", self.rows_after)
+                mlflow.log_metric("rows_dropped_ratio", (self.rows_lost / (self.rows_after + self.rows_lost)))
                 
                 # สั่งเทรน
                 self.history = self.model.fit(
@@ -149,14 +164,8 @@ class Training:
                 })
                 
                 # บันทึกตัวโมเดลไว้ใน artifacts
-                mlflow.log_artifact(self.config.trained_model_path)
+                #mlflow.log_artifact(self.config.trained_model_path)
 
-            # 3. เซฟโมเดลลงเครื่อง Local ตามปกติ
-            self.save_model(
-                path=self.config.trained_model_path,
-                model=self.model
-            )
-        
     @staticmethod
     def save_model(path: Path, model: tf.keras.Model):
         path.parent.mkdir(parents=True, exist_ok=True)

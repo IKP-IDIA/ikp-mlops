@@ -78,8 +78,8 @@ class Evaluation:
         self._prepare_validation_data()
         
         #Predic class (0 or 1)
-        y_pred_prob = self.model.predict(self.X_valid)
-        y_pred = (y_pred_prob > 0.5).astype(int)
+        #y_pred_prob = self.model.predict(self.X_valid)
+        #y_pred = (y_pred_prob > 0.5).astype(int)
 
         y_pred_prob = self.model.predict(self.X_valid)
         self.y_pred = (y_pred_prob > 0.5).astype(int)
@@ -96,64 +96,65 @@ class Evaluation:
         scores = {"loss": self.score[0], "accuracy": self.score[1]}
         save_json(path=Path("scores.json"), data=scores)
 
-def log_into_mlflow(self, experiment_name=None):
-        """ส่งผลลัพธ์ขึ้น Local MLflow (.150)"""
+    def log_into_mlflow(self, experiment_name=None):
+            """ส่งผลลัพธ์ขึ้น Local MLflow (.150)"""
         
         # 1. ตั้งค่าการเชื่อมต่อ (ดึง URI จาก Config ที่เราแก้เป็น 10.1.0.150:5000)
-        mlflow.set_tracking_uri(self.config.mlflow_uri)
-        mlflow.set_registry_uri(self.config.mlflow_uri)
+            mlflow.set_tracking_uri(self.config.mlflow_uri)
+            mlflow.set_registry_uri(self.config.mlflow_uri)
         
-        # กำหนดชื่อ Experiment (ใช้จาก Config หรือ Argument)
-        exp_name = experiment_name if experiment_name else self.config.experiment_name
-        mlflow.set_experiment(exp_name)
+            # กำหนดชื่อ Experiment (ใช้จาก Config หรือ Argument)
+            exp_name = experiment_name if experiment_name else self.config.experiment_name
+            mlflow.set_experiment(exp_name)
 
-        # เคลียร์ Active Run เก่าถ้ามี
-        try:
-            if mlflow.active_run():
-                mlflow.end_run()
-        except Exception:
-            pass
+            # เคลียร์ Active Run เก่าถ้ามี
+            try:
+                if mlflow.active_run():
+                    mlflow.end_run()
+            except Exception:
+                pass
 
-        now = datetime.now().strftime("%Y%m%d_%H%M")
-        auto_run_name = f"Fraud_Pipeline_{now}"
+            now = datetime.now().strftime("%Y%m%d_%H%M")
+            auto_run_name = f"Fraud_Pipeline_{now}"
 
-        with mlflow.start_run(run_name=auto_run_name):
-            # 2. บันทึก Parameters
-            params = self.config.all_params
-            mlflow.log_params({
-                "epochs": int(params.EPOCHS),
-                "batch_size": int(params.BATCH_SIZE),
-                "learning_rate": float(params.LEARNING_RATE),
-                "num_features": int(params.NUM_FEATURES)
-            })
-            
-            # 3. บันทึก Metrics (เอาทั้ง Accuracy และ F1/Recall)
-            report = classification_report(self.y_valid, self.y_pred, output_dict=True)
-            mlflow.log_metrics({
-                "loss": float(self.score[0]), 
-                "accuracy": float(self.score[1]),
-                "eval_f1_fraud": report['1.0']['f1-score'],
-                "eval_recall_fraud": report['1.0']['recall'],
-                "eval_precision_fraud": report['1.0']['precision']
-            })
-            
-            # 4. บันทึก Plots (Confusion Matrix)
-            cm = confusion_matrix(self.y_valid, self.y_pred)
-            plt.figure(figsize=(8,6))
-            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
-            plt.title('Confusion Matrix - Fraud Detection')
-            plot_path = "confusion_matrix.png"
-            plt.savefig(plot_path)
-            mlflow.log_artifact(plot_path) # ไฟล์นี้จะไปอยู่ใน MinIO (.250) โดยอัตโนมัติ
+            with mlflow.start_run(run_name=auto_run_name):
+                # 2. บันทึก Parameters
+                params = self.config.all_params
+                mlflow.log_params({
+                    "epochs": int(params.EPOCHS),
+                    "batch_size": int(params.BATCH_SIZE),
+                    "learning_rate": float(params.LEARNING_RATE),
+                    "num_features": int(params.NUM_FEATURES)
+                })
+                
+                # 3. บันทึก Metrics (เอาทั้ง Accuracy และ F1/Recall)
+                report = classification_report(self.y_valid, self.y_pred, output_dict=True)
+                mlflow.log_metrics({
+                    "loss": float(self.score[0]), 
+                    "accuracy": float(self.score[1]),
+                    "eval_f1_fraud": report['1.0']['f1-score'],
+                    "eval_recall_fraud": report['1.0']['recall'],
+                    "eval_precision_fraud": report['1.0']['precision']
+                })
+                
+                # 4. บันทึก Plots (Confusion Matrix)
+                cm = confusion_matrix(self.y_valid, self.y_pred)
+                plt.figure(figsize=(8,6))
+                sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+                plt.title('Confusion Matrix - Fraud Detection')
+                plot_path = "confusion_matrix.png"
+                plt.savefig(plot_path)
+                mlflow.log_artifact(plot_path) # ไฟล์นี้จะไปอยู่ใน MinIO (.250) โดยอัตโนมัติ
+                plt.close()
 
-            # 5. บันทึก Model และ Signature
-            signature = infer_signature(self.X_valid, self.model.predict(self.X_valid))
-            
-            # บันทึกโมเดลเข้า Model Registry ใน MLflow
-            mlflow.keras.log_model(
-                model=self.model, 
-                artifact_path="model", 
-                registered_model_name="FraudDetection_Model",
-                signature=signature
-            )
-            print(f"🚀 Success: Results and Model logged to MLflow at {self.config.mlflow_uri}")
+                # 5. บันทึก Model และ Signature
+                signature = infer_signature(self.X_valid, self.model.predict(self.X_valid))
+                
+                # บันทึกโมเดลเข้า Model Registry ใน MLflow
+                mlflow.keras.log_model(
+                    model=self.model, 
+                    artifact_path="model", 
+                    registered_model_name="FraudDetection_Model",
+                    signature=signature
+                )
+                print(f"🚀 Success: Results and Model logged to MLflow at {self.config.mlflow_uri}")
