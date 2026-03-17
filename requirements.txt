@@ -85,4 +85,4 @@ boto3
 
 
 #pip install pandas numpy scikit-learn tensorflow mlflow python-dotenv 
-#pip install python-box ensure pyYAML
+#pip install python-box ensure pyYAML seaborn imblearn
