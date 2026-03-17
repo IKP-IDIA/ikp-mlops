@@ -14,6 +14,7 @@ from sklearn.preprocessing import MinMaxScaler
 from imblearn.under_sampling import RandomUnderSampler
 from sklearn.metrics import recall_score, precision_score, f1_score
 from fraud_prediction import logger
+import joblib
 
 class Training: 
     def __init__(self, config: TrainingConfig):
@@ -89,6 +90,8 @@ class Training:
 
         scaler = MinMaxScaler()
         X_train_scaled = scaler.fit_transform(X_train_raw)
+        scaler_path = os.path.join(os.path.dirname(self.config.trained_model_path), "scaler.pkl")
+        joblib.dump(scaler, "scaler.pkl")
         X_valid_scaled = scaler.transform(X_valid_raw)
 
         # 6. บันทึกผลลัพธ์ลงใน Class Attribute (แปลงเป็น float32 ทันที)

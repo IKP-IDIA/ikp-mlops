@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import confusion_matrix, classification_report
 from datetime import datetime
+import joblib
 
 class Evaluation:
     def __init__(self, config: EvaluationConfig): 
@@ -65,8 +66,9 @@ class Evaluation:
         y = df['isFraud']
 
         # 3. Scaling (ในระบบจริงควรโหลด scaler ที่ Save ไว้มาใช้ แต่ตอนนี้ทำใหม่เพื่อ Test)
-        scaler = MinMaxScaler()
-        X_scaled = scaler.fit_transform(X)
+        #scaler = MinMaxScaler()
+        scaler = joblib.load("scaler.pkl")
+        X_scaled = scaler.transform(X)
         
         self.X_valid = np.asarray(X_scaled).astype('float32')
         self.y_valid = np.asarray(y).astype('float32')
@@ -78,8 +80,8 @@ class Evaluation:
         self._prepare_validation_data()
         
         #Predic class (0 or 1)
-        #y_pred_prob = self.model.predict(self.X_valid)
-        #y_pred = (y_pred_prob > 0.5).astype(int)
+        y_pred_prob = self.model.predict(self.X_valid)
+        y_pred = (y_pred_prob > 0.5).astype(int)
 
         y_pred_prob = self.model.predict(self.X_valid)
         self.y_pred = (y_pred_prob > 0.5).astype(int)
@@ -98,7 +100,7 @@ class Evaluation:
 
     def log_into_mlflow(self, experiment_name=None):
             """ส่งผลลัพธ์ขึ้น Local MLflow (.150)"""
-        
+            mlflow.end_run()
         # 1. ตั้งค่าการเชื่อมต่อ (ดึง URI จาก Config ที่เราแก้เป็น 10.1.0.150:5000)
             mlflow.set_tracking_uri(self.config.mlflow_uri)
             mlflow.set_registry_uri(self.config.mlflow_uri)
@@ -117,7 +119,7 @@ class Evaluation:
             now = datetime.now().strftime("%Y%m%d_%H%M")
             auto_run_name = f"Fraud_Pipeline_{now}"
 
-            with mlflow.start_run(run_name=auto_run_name):
+            with mlflow.start_run(run_name=auto_run_name, nested=True):
                 # 2. บันทึก Parameters
                 params = self.config.all_params
                 mlflow.log_params({
@@ -129,12 +131,13 @@ class Evaluation:
                 
                 # 3. บันทึก Metrics (เอาทั้ง Accuracy และ F1/Recall)
                 report = classification_report(self.y_valid, self.y_pred, output_dict=True)
+                print(f"DEBUG Report Keys: {report.keys()}")
                 mlflow.log_metrics({
                     "loss": float(self.score[0]), 
                     "accuracy": float(self.score[1]),
-                    "eval_f1_fraud": report['1.0']['f1-score'],
-                    "eval_recall_fraud": report['1.0']['recall'],
-                    "eval_precision_fraud": report['1.0']['precision']
+                    "eval_f1_fraud": fraud_stats.get('f1-score', 0.0),
+                    "eval_recall_fraud": fraud_stats.get('recall', 0.0),
+                    "eval_precision_fraud": fraud_stats.get('precision', 0.0)
                 })
                 
                 # 4. บันทึก Plots (Confusion Matrix)
