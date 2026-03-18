@@ -79,14 +79,27 @@ class ConfigurationManager:
         return training_config
     
     def get_evaluation_config(self) -> EvaluationConfig:
+        eval_values = self.config.evaluation 
+        params = self.params
+
+        create_directories([eval_values.root_dir])
+        
         eval_config = EvaluationConfig(
-            path_of_model=Path(self.config.training.trained_model_path),
-            training_data=Path(self.config.data_ingestion.unzip_dir),
-            mlflow_uri=self.config.mlflow_uri,
-            all_params=self.params,
-            experiment_name=self.config.training.experiment_name,
+            path_of_model=eval_values.path_of_model,
+            all_params=params,
+            mlflow_uri=eval_values.mlflow_uri,
+            training_data=eval_values.training_data,
+            experiment_name=eval_values.experiment_name,
+            registered_model_name=eval_values.registered_model_name,
+            # root_dir=eval_values.root_dir,
+            # path_of_model=Path(self.config.training.trained_model_path),
+            # training_data=Path(self.config.data_ingestion.unzip_dir),
+            # mlflow_uri=self.config.mlflow_uri,
+            # all_params=self.params,
+            # experiment_name=self.config.training.experiment_name,
             params_num_features=self.params.NUM_FEATURES,
-            params_batch_size=self.params.BATCH_SIZE
+            params_batch_size=self.params.BATCH_SIZE,
+            # registered_model_name=eval_values.registered_model_name
         )
         return eval_config
 

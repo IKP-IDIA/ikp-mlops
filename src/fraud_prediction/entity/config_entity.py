@@ -45,3 +45,4 @@ class EvaluationConfig:
     params_num_features: int
     params_batch_size: int
     experiment_name: str
+    registered_model_name: str

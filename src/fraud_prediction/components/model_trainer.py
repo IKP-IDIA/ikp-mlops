@@ -131,6 +131,27 @@ class Training:
 
             # 2. เริ่มต้นบันทึกผล
             with mlflow.start_run(run_name="Model_Training_Fit", nested=True):
+                
+                from sklearn.utils.class_weight import compute_class_weight
+                
+                # หา class ที่มี (0 และ 1)
+                classes = np.unique(self.y_train)
+                # คำนวณน้ำหนักแบบ 'balanced' 
+                # สูตร: n_samples / (n_classes * np.bincount(y))
+                weights = compute_class_weight(
+                    class_weight='balanced',
+                    classes=classes,
+                    y=self.y_train
+                )
+                class_weights = dict(zip(classes, weights))
+                
+                print(f"⚖️ Calculated Class Weights: {class_weights}")
+                # บันทึกน้ำหนักลง MLflow ด้วยเพื่อให้ตรวจสอบได้ย้อนหลัง
+                mlflow.log_params({
+                    "class_weight_0": class_weights[0],
+                    "class_weight_1": class_weights[1]
+                })
+                
                 # Log Parameters
                 mlflow.log_params({
                     "epochs": self.config.params_epochs,
@@ -148,6 +169,7 @@ class Training:
                     epochs=self.config.params_epochs,
                     batch_size=self.config.params_batch_size,
                     validation_data=(X_valid_tensor, y_valid_tensor),
+                    class_weight=class_weights,
                     verbose=1
                 )
                 

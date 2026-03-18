@@ -1,0 +1,28 @@
+name: ML Pipeline CI/CD
+
+on:
+  push:
+    branches: [ main ] # เมื่อ Push โค้ดเข้า Branch main
+
+jobs:
+  train-and-eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      # 1. รัน Pipeline ที่คุณเขียนไว้ (Stage 01-04)
+      - name: Run ML Pipeline
+        run: |
+          python main.py
+        env:
+          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          # ใส่ค่า Env อื่นๆ ที่คุณดึงจาก .env
+
+  deploy-to-k8s:
+    needs: train-and-eval
+    runs-on: ubuntu-latest
+    steps:
+      # 2. สั่ง KServe ให้ Deploy โมเดลใหม่
+      - name: Update KServe InferenceService
+        run: |
+          kubectl apply -f kserve-deploy.yaml

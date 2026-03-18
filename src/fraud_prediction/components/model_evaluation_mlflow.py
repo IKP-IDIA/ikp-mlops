@@ -72,6 +72,8 @@ class Evaluation:
         
         self.X_valid = np.asarray(X_scaled).astype('float32')
         self.y_valid = np.asarray(y).astype('float32')
+        
+    import mlflow
 
     @mlflow.trace(name="Full_Evaluation_Process")
     def evaluation(self):
@@ -93,6 +95,34 @@ class Evaluation:
         self.score = self.model.evaluate(self.X_valid, self.y_valid) # [loss, accuracy]
         
         self.save_score()
+        
+    def run_tuning(self, learning_rates=[0.01, 0.001, 0.0001], batch_sizes=[32, 64]):
+        """ฟังก์ชันสำหรับ Tuning Hyperparameters และบันทึกผลแยกตาม Run"""
+        mlflow.set_tracking_uri(self.config.mlflow_uri)
+        mlflow.set_experiment(self.config.experiment_name)
+        
+        # สร้าง Parent Run เพื่อคุมกลุ่มการจูนครั้งนี้
+        with mlflow.start_run(run_name=f"Tuning_Session_{datetime.now().strftime('%m%d_%H%M')}"):
+            for lr in learning_rates:
+                for bs in batch_sizes:
+                    # สร้าง Child Run (Nested) สำหรับแต่ละคู่ Parameter
+                    with mlflow.start_run(run_name=f"Trial_LR_{lr}_BS_{bs}", nested=True):
+                        # 1. ปรับค่า Optimizer (ตัวอย่างการ Tuning เฉพาะส่วน Evaluation)
+                        optimizer = tf.keras.optimizers.Adam(learning_rate=lr)
+                        self.model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
+                        
+                        # 2. ประเมินผล
+                        # หมายเหตุ: ในขั้นตอนนี้เรา Evaluate เท่านั้น ถ้าจะ Train ใหม่ต้องเรียก fit()
+                        eval_score = self.model.evaluate(self.X_valid, self.y_valid, batch_size=bs, verbose=0)
+                        
+                        # 3. บันทึกผลลงใน MLflow Child Run
+                        mlflow.log_params({"learning_rate": lr, "batch_size": bs})
+                        mlflow.log_metrics({
+                            "eval_loss": float(eval_score[0]),
+                            "eval_accuracy": float(eval_score[1])
+                        })
+                        
+                        print(f"✅ Trial LR={lr}, BS={bs} | Accuracy: {eval_score[1]:.4f}")
 
     def save_score(self):
         scores = {"loss": self.score[0], "accuracy": self.score[1]}
@@ -117,7 +147,7 @@ class Evaluation:
             
 
             now = datetime.now().strftime("%Y%m%d_%H%M")
-            auto_run_name = f"Fraud_Pipeline_{now}"
+            auto_run_name = f"Stage04_Eval_{now}"
 
             with mlflow.start_run(run_name=auto_run_name, nested=True):
                 # 2. บันทึก Parameters
@@ -133,14 +163,14 @@ class Evaluation:
                 report = classification_report(self.y_valid, self.y_pred, output_dict=True)
                 print(f"DEBUG Report Keys: {report.keys()}")
                 
-                fraud_stats = report.get('1', report.get('1.0', {}))
+                self.fraud_stats = report.get('1', report.get('1.0', {}))
                 
                 mlflow.log_metrics({
                     "loss": float(self.score[0]), 
                     "accuracy": float(self.score[1]),
-                    "eval_f1_fraud": fraud_stats.get('f1-score', 0.0),
-                    "eval_recall_fraud": fraud_stats.get('recall', 0.0),
-                    "eval_precision_fraud": fraud_stats.get('precision', 0.0)
+                    "eval_f1_fraud": self.fraud_stats.get('f1-score', 0.0),
+                    "eval_recall_fraud": self.fraud_stats.get('recall', 0.0),
+                    #"eval_precision_fraud": self.fraud_stats.get('precision', 0.0)
                 })
                 
                 # 4. บันทึก Plots (Confusion Matrix)
@@ -148,11 +178,23 @@ class Evaluation:
                 plt.figure(figsize=(8,6))
                 sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
                 plt.title('Confusion Matrix - Fraud Detection')
-                plot_path = "confusion_matrix.png"
+                plot_path = "confusion_matrix.png" # ไฟล์ชั่วคราวในเครื่อง
                 plt.savefig(plot_path)
-                mlflow.log_artifact(plot_path) # ไฟล์นี้จะไปอยู่ใน MinIO (.250) โดยอัตโนมัติ
+                mlflow.log_artifact(plot_path) # บันทึกเข้า MLflow Artifacts
                 plt.close()
-
+                
+                scores = {
+                "loss": float(self.score[0]),
+                "accuracy": float(self.score[1]),
+                "recall": float(self.recall),
+                "f1": float(self.f1)
+                    }
+                
+                import json
+                with open("eval_results.json", "w") as f:
+                    json.dump(scores, f)
+                mlflow.log_artifact("eval_results.json")
+                
                 # 5. บันทึก Model และ Signature
                 signature = infer_signature(self.X_valid, self.model.predict(self.X_valid))
                 
@@ -160,7 +202,38 @@ class Evaluation:
                 mlflow.keras.log_model(
                     model=self.model, 
                     artifact_path="model", 
-                    registered_model_name="FraudDetection_Model",
+                    registered_model_name=self.config.registered_model_name,
                     signature=signature
                 )
                 print(f"🚀 Success: Results and Model logged to MLflow at {self.config.mlflow_uri}")
+                
+                current_recall = self.fraud_stats.get('recall',0.0)
+                current_loss = float(self.score[0])
+                        
+                THRESHOLD_RECALL = 0.70
+                THRESHOLD_LOSS = 0
+                        
+                print(f"Checking Quality Gate: Recall={current_recall}, Loss={current_loss}")
+                        
+                if current_recall >=  THRESHOLD_RECALL and current_loss <= THRESHOLD_LOSS:
+                    print("[PASSED] Model quality is good. Ready for Deployment")
+                    self._promote_model_to_production()                
+                else:
+                    print("[FAIED] Model quanlity below threshold, Stopping deployment)")
+                
+    def _promote_model_to_production(self):
+        from mlflow.tracking import MlflowClient
+        
+        client = MlflowClient()
+        model_name = self.config.registered_model_name
+        
+        latest_versions = client.get_latest_versions(model_name, stages=[None])[0].version
+        client.transition_model_version_stage(
+            name = model_name,
+            version=latest_versions,
+            stage="Production",
+            archive_existing_versions=True
+        )
+        print(f"Model {model_name} version {latest_versions} is now in PRODUCTION")
+            
+                

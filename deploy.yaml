@@ -1,0 +1,14 @@
+apiVersion: "serving.kserve.io/v1beta1"
+kind: "InferenceService"
+metadata:
+  name: "fraud-detection"
+  namespace: "ml-deploy"
+spec:
+  predictor:
+    model:
+      modelFormat:
+        name: mlflow  # KServe จะรู้ทันทีว่าต้องใช้ MLServer จัดการ
+      storageUri: "s3://mlflow-bucket/82fac37a48954322a3385946964dc26a/artifacts/model" # Path ไปยัง MinIO ของคุณ
+      env:
+        - name: MLFLOW_S3_ENDPOINT_URL
+          value: "http://10.1.0.250:9000"
