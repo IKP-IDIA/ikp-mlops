@@ -12,6 +12,7 @@ decorator==4.4.2
 defusedxml==0.6.0
 ensure
 entrypoints==0.3
+evidently==0.4.0
 Flask==1.1.2
 imbalanced-learn>=0.10.0
 imblearn==0.0
