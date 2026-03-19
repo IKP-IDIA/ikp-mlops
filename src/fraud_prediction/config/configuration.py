@@ -4,7 +4,8 @@ from fraud_prediction.utils.common import read_yaml, create_directories
 from fraud_prediction.entity.config_entity import (DataIngestionConfig,
                                                 PrepareBaseModelConfig,
                                                 TrainingConfig,
-                                                EvaluationConfig)
+                                                EvaluationConfig,
+                                                MonitoringConfig)
 
 
 class ConfigurationManager:
@@ -103,4 +104,20 @@ class ConfigurationManager:
         )
         return eval_config
 
-      
+    def get_monitoring_config(self) -> MonitoringConfig:
+        # ดึงส่วนของ monitoring จาก yaml
+        config = self.config.model_monitoring 
+        
+        # สร้าง directory สำหรับเก็บผล monitoring
+        create_directories([Path(config.root_dir)])
+    
+        return MonitoringConfig(
+            root_dir=Path(config.root_dir),
+            # ใช้ unzip_dir จาก data_ingestion เพื่อไปหา test.csv
+            training_data=Path(self.config.data_ingestion.unzip_dir), 
+            current_data_path=Path(config.current_data_path),
+            # ดึง mlflow_uri จากจุดที่กำหนดไว้ใน config.yaml (ตรวจสอบให้ตรงกับที่ Evaluation ใช้)
+            mlflow_uri=self.config.evaluation.mlflow_uri, 
+            experiment_name=self.config.evaluation.experiment_name,
+            drift_report_path=Path(config.drift_report_path)
+        )

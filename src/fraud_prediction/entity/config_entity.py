@@ -46,3 +46,12 @@ class EvaluationConfig:
     params_batch_size: int
     experiment_name: str
     registered_model_name: str
+    
+@dataclass(frozen=True)
+class MonitoringConfig:
+    root_dir: Path
+    training_data: Path # สำหรับดึง test.csv (Reference)
+    current_data_path: Path # สำหรับดึงข้อมูลใหม่มาเช็ค (Current)
+    mlflow_uri: str
+    experiment_name: str
+    drift_report_path: Path # ที่เก็บไฟล์ .html ของ Evidently

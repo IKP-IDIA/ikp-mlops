@@ -26,3 +26,8 @@ evaluation:
   mlflow_uri: "http://10.1.0.150:5000"
   experiment_name: "Fraud_Detection_v1"
   registered_model_name: "FraudDetection_Model"
+
+model_monitoring:
+  root_dir: artifacts/model_monitoring
+  current_data_path: data/new_production_data.csv
+  drift_report_path: artifacts/model_monitoring/drift_report.html

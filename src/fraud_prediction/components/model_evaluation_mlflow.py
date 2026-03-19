@@ -128,7 +128,7 @@ class Evaluation:
         scores = {"loss": self.score[0], "accuracy": self.score[1]}
         save_json(path=Path("scores.json"), data=scores)
 
-    def log_into_mlflow(self, experiment_name=None):
+    def log_into_mlflow(self, run_name="04_Model_Evaluation"):
             """ส่งผลลัพธ์ขึ้น Local MLflow (.150)"""
         # 1. ตั้งค่าการเชื่อมต่อ (ดึง URI จาก Config ที่เราแก้เป็น 10.1.0.150:5000)
             mlflow.set_tracking_uri(self.config.mlflow_uri)
