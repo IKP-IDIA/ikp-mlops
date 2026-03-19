@@ -1192,3 +1192,312 @@ x==========x]
 [2026-03-18 23:48:15,003: INFO: main: >>>>>> stage Evaluation stage completed <<<<<<
 
 x==========x]
+[2026-03-19 23:30:50,883: INFO: main: >>>>>> Stage 01_Data_Ingestion started <<<<<<]
+[2026-03-19 23:30:50,961: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:30:50,961: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:30:50,961: INFO: common: created directory at: artifacts]
+[2026-03-19 23:30:50,961: INFO: common: created directory at: artifacts/data_ingestion]
+[2026-03-19 23:30:50,961: INFO: data_ingestion: Using local data from DVC: data/fraud_0.1origbase.csv]
+[2026-03-19 23:30:50,987: INFO: data_ingestion: Successfully copied data to artifacts/data_ingestion/fraud_0.1origbase.csv]
+[2026-03-19 23:30:50,987: INFO: data_ingestion: File is not a zip, skipping extraction.]
+[2026-03-19 23:30:51,104: INFO: main: >>>>>> Stage 01_Data_Ingestion completed <<<<<<
+
+x==========x]
+[2026-03-19 23:30:51,104: INFO: main: >>>>>> Stage 02_Prepare_Base_Model started <<<<<<]
+[2026-03-19 23:30:51,169: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:30:51,169: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:30:51,169: INFO: common: created directory at: artifacts]
+[2026-03-19 23:30:51,169: INFO: common: created directory at: artifacts/prepare_base_model]
+[2026-03-19 23:30:51,859: WARNING: saving_api: You are saving your model as an HDF5 file via `model.save()` or `keras.saving.save_model(model)`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')` or `keras.saving.save_model(model, 'my_model.keras')`. ]
+[2026-03-19 23:30:51,864: INFO: prepare_base_model: Model saved at: artifacts/prepare_base_model/base_model.h5]
+[2026-03-19 23:30:51,874: WARNING: saving_api: You are saving your model as an HDF5 file via `model.save()` or `keras.saving.save_model(model)`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')` or `keras.saving.save_model(model, 'my_model.keras')`. ]
+[2026-03-19 23:30:51,879: INFO: prepare_base_model: Model saved at: artifacts/prepare_base_model/base_model_updated.h5]
+[2026-03-19 23:30:51,954: INFO: main: >>>>>> Stage 02_Prepare_Base_Model completed <<<<<<
+
+x==========x]
+[2026-03-19 23:30:51,954: INFO: main: >>>>>> stage 03_Model_Training started <<<<<<]
+[2026-03-19 23:30:52,019: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:30:52,021: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:30:52,021: INFO: common: created directory at: artifacts]
+[2026-03-19 23:30:52,021: INFO: common: created directory at: artifacts/training]
+[2026-03-19 23:30:52,132: INFO: stage_03_model_trainer: Active Parent Run ID : c42bdbcc73dd47188b51bd330c20b7ee]
+[2026-03-19 23:30:52,218: WARNING: saving_utils: Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.]
+[2026-03-19 23:30:52,705: INFO: model_trainer: Data Cleaning: Remaining rows: 2463 (Lost: 0)]
+[2026-03-19 23:30:53,684: INFO: credentials: Found credentials in environment variables.]
+[2026-03-19 23:31:02,468: WARNING: connectionpool: Connection pool is full, discarding connection: 10.1.0.150. Connection pool size: 10]
+[2026-03-19 23:31:06,545: INFO: main: >>>>>> stage 03_Model_Training completed <<<<<<
+
+x==========x]
+[2026-03-19 23:31:06,546: INFO: main: >>>>>> stage 04_Model_Evaluation started <<<<<<]
+[2026-03-19 23:31:06,613: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:31:06,614: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:31:06,614: INFO: common: created directory at: artifacts]
+[2026-03-19 23:31:06,614: INFO: common: created directory at: artifacts/model_evaluation]
+[2026-03-19 23:31:35,112: INFO: common: json file saved at: scores.json]
+[2026-03-19 23:31:35,218: INFO: common: json file saved at: scores.json]
+[2026-03-19 23:31:35,515: ERROR: main: Evaluation.log_into_mlflow() got an unexpected keyword argument 'experiment_name']
+Traceback (most recent call last):
+  File "/home/ikp-4090/june/MLOps/main.py", line 74, in <module>
+    model_evaluation_pipeline.main(experiment_name=EXPERIMENT_NAME)
+  File "/home/ikp-4090/june/MLOps/src/fraud_prediction/pipeline/stage_04_model_evaluation.py", line 22, in main
+    evaluation.log_into_mlflow(experiment_name=experiment_name)
+TypeError: Evaluation.log_into_mlflow() got an unexpected keyword argument 'experiment_name'
+[2026-03-19 23:32:42,016: INFO: main: >>>>>> Stage 01_Data_Ingestion started <<<<<<]
+[2026-03-19 23:32:42,089: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:32:42,089: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:32:42,089: INFO: common: created directory at: artifacts]
+[2026-03-19 23:32:42,089: INFO: common: created directory at: artifacts/data_ingestion]
+[2026-03-19 23:32:42,090: INFO: data_ingestion: Using local data from DVC: data/fraud_0.1origbase.csv]
+[2026-03-19 23:32:42,112: INFO: data_ingestion: Successfully copied data to artifacts/data_ingestion/fraud_0.1origbase.csv]
+[2026-03-19 23:32:42,112: INFO: data_ingestion: File is not a zip, skipping extraction.]
+[2026-03-19 23:32:42,226: INFO: main: >>>>>> Stage 01_Data_Ingestion completed <<<<<<
+
+x==========x]
+[2026-03-19 23:32:42,226: INFO: main: >>>>>> Stage 02_Prepare_Base_Model started <<<<<<]
+[2026-03-19 23:32:42,304: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:32:42,305: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:32:42,305: INFO: common: created directory at: artifacts]
+[2026-03-19 23:32:42,305: INFO: common: created directory at: artifacts/prepare_base_model]
+[2026-03-19 23:32:43,001: WARNING: saving_api: You are saving your model as an HDF5 file via `model.save()` or `keras.saving.save_model(model)`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')` or `keras.saving.save_model(model, 'my_model.keras')`. ]
+[2026-03-19 23:32:43,006: INFO: prepare_base_model: Model saved at: artifacts/prepare_base_model/base_model.h5]
+[2026-03-19 23:32:43,017: WARNING: saving_api: You are saving your model as an HDF5 file via `model.save()` or `keras.saving.save_model(model)`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')` or `keras.saving.save_model(model, 'my_model.keras')`. ]
+[2026-03-19 23:32:43,022: INFO: prepare_base_model: Model saved at: artifacts/prepare_base_model/base_model_updated.h5]
+[2026-03-19 23:32:43,095: INFO: main: >>>>>> Stage 02_Prepare_Base_Model completed <<<<<<
+
+x==========x]
+[2026-03-19 23:32:43,095: INFO: main: >>>>>> stage 03_Model_Training started <<<<<<]
+[2026-03-19 23:32:43,168: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:32:43,168: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:32:43,168: INFO: common: created directory at: artifacts]
+[2026-03-19 23:32:43,169: INFO: common: created directory at: artifacts/training]
+[2026-03-19 23:32:43,294: INFO: stage_03_model_trainer: Active Parent Run ID : 3a982729566b4c96b183c7f8580619bc]
+[2026-03-19 23:32:43,376: WARNING: saving_utils: Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.]
+[2026-03-19 23:32:43,866: INFO: model_trainer: Data Cleaning: Remaining rows: 2463 (Lost: 0)]
+[2026-03-19 23:32:44,863: INFO: credentials: Found credentials in environment variables.]
+[2026-03-19 23:32:53,862: WARNING: connectionpool: Connection pool is full, discarding connection: 10.1.0.150. Connection pool size: 10]
+[2026-03-19 23:32:55,042: INFO: main: >>>>>> stage 03_Model_Training completed <<<<<<
+
+x==========x]
+[2026-03-19 23:32:55,042: INFO: main: >>>>>> stage 04_Model_Evaluation started <<<<<<]
+[2026-03-19 23:32:55,107: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:32:55,107: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:32:55,108: INFO: common: created directory at: artifacts]
+[2026-03-19 23:32:55,108: INFO: common: created directory at: artifacts/model_evaluation]
+[2026-03-19 23:33:24,717: INFO: common: json file saved at: scores.json]
+[2026-03-19 23:33:24,815: INFO: common: json file saved at: scores.json]
+[2026-03-19 23:33:26,146: ERROR: main: Failed to upload confusion_matrix.png to mlflow/1/5232d7d465b845e081179296d5702492/artifacts/confusion_matrix.png: An error occurred (NoSuchBucket) when calling the PutObject operation: The specified bucket does not exist]
+Traceback (most recent call last):
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/boto3/s3/transfer.py", line 452, in upload_file
+    future.result()
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/s3transfer/futures.py", line 111, in result
+    return self._coordinator.result()
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/s3transfer/futures.py", line 287, in result
+    raise self._exception
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/s3transfer/tasks.py", line 142, in __call__
+    return self._execute_main(kwargs)
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/s3transfer/tasks.py", line 165, in _execute_main
+    return_value = self._main(**kwargs)
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/s3transfer/upload.py", line 796, in _main
+    client.put_object(Bucket=bucket, Key=key, Body=body, **extra_args)
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/botocore/client.py", line 602, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/botocore/context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/botocore/client.py", line 1078, in _make_api_call
+    raise error_class(parsed_response, operation_name)
+botocore.errorfactory.NoSuchBucket: An error occurred (NoSuchBucket) when calling the PutObject operation: The specified bucket does not exist
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ikp-4090/june/MLOps/main.py", line 74, in <module>
+    model_evaluation_pipeline.main(experiment_name=EXPERIMENT_NAME)
+  File "/home/ikp-4090/june/MLOps/src/fraud_prediction/pipeline/stage_04_model_evaluation.py", line 22, in main
+    evaluation.log_into_mlflow(experiment_name=experiment_name)
+  File "/home/ikp-4090/june/MLOps/src/fraud_prediction/components/model_evaluation_mlflow.py", line 183, in log_into_mlflow
+    mlflow.log_artifact(plot_path) # บันทึกเข้า MLflow Artifacts
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/mlflow/tracking/fluent.py", line 1445, in log_artifact
+    MlflowClient().log_artifact(run_id, local_path, artifact_path)
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/mlflow/tracking/client.py", line 2533, in log_artifact
+    self._tracking_client.log_artifact(run_id, local_path, artifact_path)
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/mlflow/tracking/_tracking_service/client.py", line 675, in log_artifact
+    artifact_repo.log_artifact(local_path, artifact_path)
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/mlflow/store/artifact/s3_artifact_repo.py", line 268, in log_artifact
+    self._upload_file(
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/mlflow/store/artifact/s3_artifact_repo.py", line 248, in _upload_file
+    s3_client.upload_file(Filename=local_file, Bucket=bucket, Key=key, ExtraArgs=extra_args)
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/botocore/context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/boto3/s3/inject.py", line 175, in upload_file
+    return transfer.upload_file(
+  File "/home/ikp-4090/anaconda3/envs/mlops/lib/python3.10/site-packages/boto3/s3/transfer.py", line 458, in upload_file
+    raise S3UploadFailedError(
+boto3.exceptions.S3UploadFailedError: Failed to upload confusion_matrix.png to mlflow/1/5232d7d465b845e081179296d5702492/artifacts/confusion_matrix.png: An error occurred (NoSuchBucket) when calling the PutObject operation: The specified bucket does not exist
+[2026-03-19 23:37:54,007: INFO: main: >>>>>> Stage 01_Data_Ingestion started <<<<<<]
+[2026-03-19 23:37:54,070: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:37:54,070: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:37:54,070: INFO: common: created directory at: artifacts]
+[2026-03-19 23:37:54,070: INFO: common: created directory at: artifacts/data_ingestion]
+[2026-03-19 23:37:54,070: INFO: data_ingestion: Using local data from DVC: data/fraud_0.1origbase.csv]
+[2026-03-19 23:37:54,092: INFO: data_ingestion: Successfully copied data to artifacts/data_ingestion/fraud_0.1origbase.csv]
+[2026-03-19 23:37:54,092: INFO: data_ingestion: File is not a zip, skipping extraction.]
+[2026-03-19 23:37:54,205: INFO: main: >>>>>> Stage 01_Data_Ingestion completed <<<<<<
+
+x==========x]
+[2026-03-19 23:37:54,205: INFO: main: >>>>>> Stage 02_Prepare_Base_Model started <<<<<<]
+[2026-03-19 23:37:54,281: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:37:54,281: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:37:54,281: INFO: common: created directory at: artifacts]
+[2026-03-19 23:37:54,281: INFO: common: created directory at: artifacts/prepare_base_model]
+[2026-03-19 23:37:54,972: WARNING: saving_api: You are saving your model as an HDF5 file via `model.save()` or `keras.saving.save_model(model)`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')` or `keras.saving.save_model(model, 'my_model.keras')`. ]
+[2026-03-19 23:37:54,977: INFO: prepare_base_model: Model saved at: artifacts/prepare_base_model/base_model.h5]
+[2026-03-19 23:37:54,987: WARNING: saving_api: You are saving your model as an HDF5 file via `model.save()` or `keras.saving.save_model(model)`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')` or `keras.saving.save_model(model, 'my_model.keras')`. ]
+[2026-03-19 23:37:54,993: INFO: prepare_base_model: Model saved at: artifacts/prepare_base_model/base_model_updated.h5]
+[2026-03-19 23:37:55,058: INFO: main: >>>>>> Stage 02_Prepare_Base_Model completed <<<<<<
+
+x==========x]
+[2026-03-19 23:37:55,058: INFO: main: >>>>>> stage 03_Model_Training started <<<<<<]
+[2026-03-19 23:37:55,122: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:37:55,122: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:37:55,122: INFO: common: created directory at: artifacts]
+[2026-03-19 23:37:55,122: INFO: common: created directory at: artifacts/training]
+[2026-03-19 23:37:55,239: INFO: stage_03_model_trainer: Active Parent Run ID : b8ae951514334ab1b5d201c0efc3338f]
+[2026-03-19 23:37:55,320: WARNING: saving_utils: Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.]
+[2026-03-19 23:37:55,823: INFO: model_trainer: Data Cleaning: Remaining rows: 2463 (Lost: 0)]
+[2026-03-19 23:37:56,812: INFO: credentials: Found credentials in environment variables.]
+[2026-03-19 23:38:05,907: WARNING: connectionpool: Connection pool is full, discarding connection: 10.1.0.150. Connection pool size: 10]
+[2026-03-19 23:38:07,795: INFO: main: >>>>>> stage 03_Model_Training completed <<<<<<
+
+x==========x]
+[2026-03-19 23:38:07,796: INFO: main: >>>>>> stage 04_Model_Evaluation started <<<<<<]
+[2026-03-19 23:38:07,861: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:38:07,861: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:38:07,862: INFO: common: created directory at: artifacts]
+[2026-03-19 23:38:07,862: INFO: common: created directory at: artifacts/model_evaluation]
+[2026-03-19 23:38:36,095: INFO: common: json file saved at: scores.json]
+[2026-03-19 23:38:36,221: INFO: common: json file saved at: scores.json]
+[2026-03-19 23:42:54,837: INFO: main: >>>>>> Stage 01_Data_Ingestion started <<<<<<]
+[2026-03-19 23:42:54,906: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:42:54,906: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:42:54,906: INFO: common: created directory at: artifacts]
+[2026-03-19 23:42:54,906: INFO: common: created directory at: artifacts/data_ingestion]
+[2026-03-19 23:42:54,906: INFO: data_ingestion: Using local data from DVC: data/fraud_0.1origbase.csv]
+[2026-03-19 23:42:54,930: INFO: data_ingestion: Successfully copied data to artifacts/data_ingestion/fraud_0.1origbase.csv]
+[2026-03-19 23:42:54,931: INFO: data_ingestion: File is not a zip, skipping extraction.]
+[2026-03-19 23:42:55,048: INFO: main: >>>>>> Stage 01_Data_Ingestion completed <<<<<<
+
+x==========x]
+[2026-03-19 23:42:55,048: INFO: main: >>>>>> Stage 02_Prepare_Base_Model started <<<<<<]
+[2026-03-19 23:42:55,112: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:42:55,112: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:42:55,112: INFO: common: created directory at: artifacts]
+[2026-03-19 23:42:55,112: INFO: common: created directory at: artifacts/prepare_base_model]
+[2026-03-19 23:42:55,838: WARNING: saving_api: You are saving your model as an HDF5 file via `model.save()` or `keras.saving.save_model(model)`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')` or `keras.saving.save_model(model, 'my_model.keras')`. ]
+[2026-03-19 23:42:55,843: INFO: prepare_base_model: Model saved at: artifacts/prepare_base_model/base_model.h5]
+[2026-03-19 23:42:55,853: WARNING: saving_api: You are saving your model as an HDF5 file via `model.save()` or `keras.saving.save_model(model)`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')` or `keras.saving.save_model(model, 'my_model.keras')`. ]
+[2026-03-19 23:42:55,858: INFO: prepare_base_model: Model saved at: artifacts/prepare_base_model/base_model_updated.h5]
+[2026-03-19 23:42:55,922: INFO: main: >>>>>> Stage 02_Prepare_Base_Model completed <<<<<<
+
+x==========x]
+[2026-03-19 23:42:55,922: INFO: main: >>>>>> stage 03_Model_Training started <<<<<<]
+[2026-03-19 23:42:55,986: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:42:55,986: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:42:55,987: INFO: common: created directory at: artifacts]
+[2026-03-19 23:42:55,987: INFO: common: created directory at: artifacts/training]
+[2026-03-19 23:42:56,100: INFO: stage_03_model_trainer: Active Parent Run ID : 9ee70b5bda5141eba98513ac15c5b0d0]
+[2026-03-19 23:42:56,180: WARNING: saving_utils: Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.]
+[2026-03-19 23:42:56,654: INFO: model_trainer: Data Cleaning: Remaining rows: 4926 (Lost: 0)]
+[2026-03-19 23:42:57,640: INFO: credentials: Found credentials in environment variables.]
+[2026-03-19 23:43:08,756: INFO: main: >>>>>> stage 03_Model_Training completed <<<<<<
+
+x==========x]
+[2026-03-19 23:43:08,756: INFO: main: >>>>>> stage 04_Model_Evaluation started <<<<<<]
+[2026-03-19 23:43:08,831: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:43:08,831: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:43:08,832: INFO: common: created directory at: artifacts]
+[2026-03-19 23:43:08,832: INFO: common: created directory at: artifacts/model_evaluation]
+[2026-03-19 23:43:38,146: INFO: common: json file saved at: scores.json]
+[2026-03-19 23:43:38,257: INFO: common: json file saved at: scores.json]
+[2026-03-19 23:54:03,829: INFO: main: >>>>>> Stage 01_Data_Ingestion started <<<<<<]
+[2026-03-19 23:54:03,893: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:54:03,893: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:54:03,893: INFO: common: created directory at: artifacts]
+[2026-03-19 23:54:03,893: INFO: common: created directory at: artifacts/data_ingestion]
+[2026-03-19 23:54:03,893: INFO: data_ingestion: Using local data from DVC: data/fraud_0.1origbase.csv]
+[2026-03-19 23:54:03,917: INFO: data_ingestion: Successfully copied data to artifacts/data_ingestion/fraud_0.1origbase.csv]
+[2026-03-19 23:54:03,918: INFO: data_ingestion: File is not a zip, skipping extraction.]
+[2026-03-19 23:54:04,034: INFO: main: >>>>>> Stage 01_Data_Ingestion completed <<<<<<
+
+x==========x]
+[2026-03-19 23:54:04,034: INFO: main: >>>>>> Stage 02_Prepare_Base_Model started <<<<<<]
+[2026-03-19 23:54:04,102: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:54:04,103: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:54:04,103: INFO: common: created directory at: artifacts]
+[2026-03-19 23:54:04,103: INFO: common: created directory at: artifacts/prepare_base_model]
+[2026-03-19 23:54:04,796: WARNING: saving_api: You are saving your model as an HDF5 file via `model.save()` or `keras.saving.save_model(model)`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')` or `keras.saving.save_model(model, 'my_model.keras')`. ]
+[2026-03-19 23:54:04,801: INFO: prepare_base_model: Model saved at: artifacts/prepare_base_model/base_model.h5]
+[2026-03-19 23:54:04,811: WARNING: saving_api: You are saving your model as an HDF5 file via `model.save()` or `keras.saving.save_model(model)`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')` or `keras.saving.save_model(model, 'my_model.keras')`. ]
+[2026-03-19 23:54:04,816: INFO: prepare_base_model: Model saved at: artifacts/prepare_base_model/base_model_updated.h5]
+[2026-03-19 23:54:04,893: INFO: main: >>>>>> Stage 02_Prepare_Base_Model completed <<<<<<
+
+x==========x]
+[2026-03-19 23:54:04,893: INFO: main: >>>>>> stage 03_Model_Training started <<<<<<]
+[2026-03-19 23:54:04,965: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:54:04,965: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:54:04,965: INFO: common: created directory at: artifacts]
+[2026-03-19 23:54:04,965: INFO: common: created directory at: artifacts/training]
+[2026-03-19 23:54:05,075: INFO: stage_03_model_trainer: Active Parent Run ID : 300f0ace9311451abf3d1d0698fe1076]
+[2026-03-19 23:54:05,152: WARNING: saving_utils: Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.]
+[2026-03-19 23:54:05,643: INFO: model_trainer: Data Cleaning: Remaining rows: 1642 (Lost: 0)]
+[2026-03-19 23:54:06,074: ERROR: main: name 'scaler_path' is not defined]
+Traceback (most recent call last):
+  File "/home/ikp-4090/june/MLOps/main.py", line 61, in <module>
+    model_trainer_pipeline.main(experiment_name=EXPERIMENT_NAME)
+  File "/home/ikp-4090/june/MLOps/src/fraud_prediction/pipeline/stage_03_model_trainer.py", line 32, in main
+    training.train(experiment_name=experiment_name) #create child run in side this step
+  File "/home/ikp-4090/june/MLOps/src/fraud_prediction/components/model_trainer.py", line 137, in train
+    mlflow.log_artifact(scaler_path)
+NameError: name 'scaler_path' is not defined
+[2026-03-19 23:56:16,618: INFO: main: >>>>>> Stage 01_Data_Ingestion started <<<<<<]
+[2026-03-19 23:56:16,694: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:56:16,695: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:56:16,695: INFO: common: created directory at: artifacts]
+[2026-03-19 23:56:16,695: INFO: common: created directory at: artifacts/data_ingestion]
+[2026-03-19 23:56:16,695: INFO: data_ingestion: Using local data from DVC: data/fraud_0.1origbase.csv]
+[2026-03-19 23:56:16,720: INFO: data_ingestion: Successfully copied data to artifacts/data_ingestion/fraud_0.1origbase.csv]
+[2026-03-19 23:56:16,720: INFO: data_ingestion: File is not a zip, skipping extraction.]
+[2026-03-19 23:56:16,837: INFO: main: >>>>>> Stage 01_Data_Ingestion completed <<<<<<
+
+x==========x]
+[2026-03-19 23:56:16,837: INFO: main: >>>>>> Stage 02_Prepare_Base_Model started <<<<<<]
+[2026-03-19 23:56:16,907: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:56:16,908: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:56:16,908: INFO: common: created directory at: artifacts]
+[2026-03-19 23:56:16,908: INFO: common: created directory at: artifacts/prepare_base_model]
+[2026-03-19 23:56:17,567: WARNING: saving_api: You are saving your model as an HDF5 file via `model.save()` or `keras.saving.save_model(model)`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')` or `keras.saving.save_model(model, 'my_model.keras')`. ]
+[2026-03-19 23:56:17,572: INFO: prepare_base_model: Model saved at: artifacts/prepare_base_model/base_model.h5]
+[2026-03-19 23:56:17,584: WARNING: saving_api: You are saving your model as an HDF5 file via `model.save()` or `keras.saving.save_model(model)`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')` or `keras.saving.save_model(model, 'my_model.keras')`. ]
+[2026-03-19 23:56:17,589: INFO: prepare_base_model: Model saved at: artifacts/prepare_base_model/base_model_updated.h5]
+[2026-03-19 23:56:17,666: INFO: main: >>>>>> Stage 02_Prepare_Base_Model completed <<<<<<
+
+x==========x]
+[2026-03-19 23:56:17,666: INFO: main: >>>>>> stage 03_Model_Training started <<<<<<]
+[2026-03-19 23:56:17,742: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:56:17,742: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:56:17,742: INFO: common: created directory at: artifacts]
+[2026-03-19 23:56:17,742: INFO: common: created directory at: artifacts/training]
+[2026-03-19 23:56:17,860: INFO: stage_03_model_trainer: Active Parent Run ID : 82c8948743dc4ac2b29330876f8807c3]
+[2026-03-19 23:56:17,947: WARNING: saving_utils: Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.]
+[2026-03-19 23:56:18,408: INFO: model_trainer: Data Cleaning: Remaining rows: 1642 (Lost: 0)]
+[2026-03-19 23:56:18,571: INFO: credentials: Found credentials in environment variables.]
+[2026-03-19 23:56:26,608: WARNING: connectionpool: Connection pool is full, discarding connection: 10.1.0.150. Connection pool size: 10]
+[2026-03-19 23:56:28,725: INFO: main: >>>>>> stage 03_Model_Training completed <<<<<<
+
+x==========x]
+[2026-03-19 23:56:28,725: INFO: main: >>>>>> stage 04_Model_Evaluation started <<<<<<]
+[2026-03-19 23:56:28,790: INFO: common: yaml file: config/config.yaml loaded successfully]
+[2026-03-19 23:56:28,790: INFO: common: yaml file: params.yaml loaded successfully]
+[2026-03-19 23:56:28,791: INFO: common: created directory at: artifacts]
+[2026-03-19 23:56:28,791: INFO: common: created directory at: artifacts/model_evaluation]
+[2026-03-19 23:56:57,181: INFO: common: json file saved at: scores.json]
+[2026-03-19 23:56:57,305: INFO: common: json file saved at: scores.json]

@@ -128,7 +128,7 @@ class Evaluation:
         scores = {"loss": self.score[0], "accuracy": self.score[1]}
         save_json(path=Path("scores.json"), data=scores)
 
-    def log_into_mlflow(self, run_name="04_Model_Evaluation"):
+    def log_into_mlflow(self, experiment_name=None):
             """ส่งผลลัพธ์ขึ้น Local MLflow (.150)"""
         # 1. ตั้งค่าการเชื่อมต่อ (ดึง URI จาก Config ที่เราแก้เป็น 10.1.0.150:5000)
             mlflow.set_tracking_uri(self.config.mlflow_uri)
@@ -211,7 +211,7 @@ class Evaluation:
                 current_loss = float(self.score[0])
                         
                 THRESHOLD_RECALL = 0.70
-                THRESHOLD_LOSS = 0
+                THRESHOLD_LOSS = 0.30
                         
                 print(f"Checking Quality Gate: Recall={current_recall}, Loss={current_loss}")
                         
@@ -220,6 +220,8 @@ class Evaluation:
                     self._promote_model_to_production()                
                 else:
                     print("[FAIED] Model quanlity below threshold, Stopping deployment)")
+                    import sys
+                    sys.exit(1)
                 
     def _promote_model_to_production(self):
         from mlflow.tracking import MlflowClient

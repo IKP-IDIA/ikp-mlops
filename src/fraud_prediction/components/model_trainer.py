@@ -10,7 +10,7 @@ from fraud_prediction.entity.config_entity import TrainingConfig
 from pathlib import Path
 import glob
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 from imblearn.under_sampling import RandomUnderSampler
 from sklearn.metrics import recall_score, precision_score, f1_score
 from fraud_prediction import logger
@@ -88,10 +88,11 @@ class Training:
             X, y, test_size=0.2, random_state=42, stratify=y
         )
 
-        scaler = MinMaxScaler()
+        scaler = StandardScaler()
         X_train_scaled = scaler.fit_transform(X_train_raw)
-        scaler_path = os.path.join(os.path.dirname(self.config.trained_model_path), "scaler.pkl")
-        joblib.dump(scaler, "scaler.pkl")
+        scaler_dir = os.path.dirname(self.config.trained_model_path)
+        self.scaler_path = os.path.join(os.path.dirname(self.config.trained_model_path), "scaler.pkl")
+        joblib.dump(scaler, self.scaler_path)
         X_valid_scaled = scaler.transform(X_valid_raw)
 
         # 6. บันทึกผลลัพธ์ลงใน Class Attribute (แปลงเป็น float32 ทันที)
@@ -133,6 +134,7 @@ class Training:
             with mlflow.start_run(run_name="Model_Training_Fit", nested=True):
                 
                 from sklearn.utils.class_weight import compute_class_weight
+                mlflow.log_artifact(self.scaler_path)
                 
                 # หา class ที่มี (0 และ 1)
                 classes = np.unique(self.y_train)
@@ -169,7 +171,7 @@ class Training:
                     epochs=self.config.params_epochs,
                     batch_size=self.config.params_batch_size,
                     validation_data=(X_valid_tensor, y_valid_tensor),
-                    class_weight=class_weights,
+                    #class_weight=class_weights,
                     verbose=1
                 )
                 
