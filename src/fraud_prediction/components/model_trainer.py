@@ -171,13 +171,13 @@ class Training:
                     epochs=self.config.params_epochs,
                     batch_size=self.config.params_batch_size,
                     validation_data=(X_valid_tensor, y_valid_tensor),
-                    #class_weight=class_weights,
+                    class_weight=class_weights,
                     verbose=1
                 )
                 
                 # คำนวณ Metrics หลังเทรนเสร็จ
                 y_pred_prob = self.model.predict(X_valid_tensor)
-                y_pred = (y_pred_prob > 0.5).astype(int)
+                y_pred = (y_pred_prob > 0.7).astype(int)
                 
                 recall = recall_score(self.y_valid, y_pred)
                 precision = precision_score(self.y_valid, y_pred, zero_division=0)
