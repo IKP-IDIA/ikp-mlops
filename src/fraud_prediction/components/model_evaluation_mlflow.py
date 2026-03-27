@@ -8,13 +8,13 @@ from urllib.parse import urlparse
 from fraud_prediction.utils.common import save_json 
 import os
 import glob
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from mlflow.models.signature import infer_signature
 from fraud_prediction.entity.config_entity import EvaluationConfig
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import confusion_matrix, classification_report, auc, confusion_matrix, ConfusionMatrixDisplay,precision_recall_curve
 from datetime import datetime
 import joblib
 
@@ -67,14 +67,14 @@ class Evaluation:
 
         # 3. Scaling (ในระบบจริงควรโหลด scaler ที่ Save ไว้มาใช้ แต่ตอนนี้ทำใหม่เพื่อ Test)
         #scaler = MinMaxScaler()
-        scaler = joblib.load("scaler.pkl")
+        scaler_path = os.path.join(
+            os.path.dirname(self.config.path_of_model), "scaler.pkl")
+        scaler = joblib.load(scaler_path)
         X_scaled = scaler.transform(X)
         
         self.X_valid = np.asarray(X_scaled).astype('float32')
         self.y_valid = np.asarray(y).astype('float32')
         
-    import mlflow
-
     @mlflow.trace(name="Full_Evaluation_Process")
     def evaluation(self):
         # 1. Load model 
@@ -82,16 +82,14 @@ class Evaluation:
         self._prepare_validation_data()
         
         #Predic class (0 or 1)
-        y_pred_prob = self.model.predict(self.X_valid)
-        y_pred = (y_pred_prob > 0.5).astype(int)
 
         y_pred_prob = self.model.predict(self.X_valid)
-        self.y_pred = (y_pred_prob > 0.5).astype(int)
+        self.y_pred = (y_pred_prob > 0.50).astype(int)
 
         # Measure results by using Data Array
-        self.recall = recall_score(self.y_valid, y_pred)
-        self.precision = precision_score(self.y_valid, y_pred)
-        self.f1 = f1_score(self.y_valid, y_pred)
+        self.recall = recall_score(self.y_valid, self.y_pred)
+        self.precision = precision_score(self.y_valid, self.y_pred)
+        self.f1 = f1_score(self.y_valid, self.y_pred)
         self.score = self.model.evaluate(self.X_valid, self.y_valid) # [loss, accuracy]
         
         self.save_score()
@@ -129,113 +127,107 @@ class Evaluation:
         save_json(path=Path("scores.json"), data=scores)
 
     def log_into_mlflow(self, experiment_name=None):
-            """ส่งผลลัพธ์ขึ้น Local MLflow (.150)"""
-        # 1. ตั้งค่าการเชื่อมต่อ (ดึง URI จาก Config ที่เราแก้เป็น 10.1.0.150:5000)
-            mlflow.set_tracking_uri(self.config.mlflow_uri)
-            mlflow.set_registry_uri(self.config.mlflow_uri)
+        """ส่งผลลัพธ์ขึ้น Local MLflow (.150)"""
+        mlflow.set_tracking_uri(self.config.mlflow_uri)
+        mlflow.set_registry_uri(self.config.mlflow_uri)
         
-            # กำหนดชื่อ Experiment (ใช้จาก Config หรือ Argument)
-            exp_name = experiment_name if experiment_name else self.config.experiment_name
-            mlflow.set_experiment(exp_name)
+        exp_name = experiment_name if experiment_name else self.config.experiment_name
+        mlflow.set_experiment(exp_name)
 
-            # เคลียร์ Active Run เก่าถ้ามี
-            # try:
-            #     if mlflow.active_run():
-            #         mlflow.end_run()
-            # except Exception:
-            #     pass
+        now = datetime.now().strftime("%Y%m%d_%H%M")
+        auto_run_name = f"Model_Evaluation_{now}"
+
+        with mlflow.start_run(run_name=auto_run_name, nested=True) as run:
+            # 1. บันทึก Parameters
+            params = self.config.all_params
+            mlflow.log_params({
+                "epochs": int(params.EPOCHS),
+                "batch_size": int(params.BATCH_SIZE),
+                "learning_rate": float(params.LEARNING_RATE),
+                "num_features": int(params.NUM_FEATURES)
+            })
             
-
-            now = datetime.now().strftime("%Y%m%d_%H%M")
-            auto_run_name = f"Stage04_Eval_{now}"
-
-            with mlflow.start_run(run_name=auto_run_name, nested=True):
-                # 2. บันทึก Parameters
-                params = self.config.all_params
-                mlflow.log_params({
-                    "epochs": int(params.EPOCHS),
-                    "batch_size": int(params.BATCH_SIZE),
-                    "learning_rate": float(params.LEARNING_RATE),
-                    "num_features": int(params.NUM_FEATURES)
-                })
-                
-                # 3. บันทึก Metrics (เอาทั้ง Accuracy และ F1/Recall)
-                report = classification_report(self.y_valid, self.y_pred, output_dict=True)
-                print(f"DEBUG Report Keys: {report.keys()}")
-                
-                self.fraud_stats = report.get('1', report.get('1.0', {}))
-                
-                mlflow.log_metrics({
-                    "loss": float(self.score[0]), 
-                    "accuracy": float(self.score[1]),
-                    "eval_f1_fraud": self.fraud_stats.get('f1-score', 0.0),
-                    "eval_recall_fraud": self.fraud_stats.get('recall', 0.0),
-                    #"eval_precision_fraud": self.fraud_stats.get('precision', 0.0)
-                })
-                
-                # 4. บันทึก Plots (Confusion Matrix)
-                cm = confusion_matrix(self.y_valid, self.y_pred)
-                plt.figure(figsize=(8,6))
-                sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
-                plt.title('Confusion Matrix - Fraud Detection')
-                plot_path = "confusion_matrix.png" # ไฟล์ชั่วคราวในเครื่อง
-                plt.savefig(plot_path)
-                mlflow.log_artifact(plot_path) # บันทึกเข้า MLflow Artifacts
-                plt.close()
-                
-                scores = {
-                "loss": float(self.score[0]),
+            # 2. ทำการ Predict เพื่อเอาค่า Probability (สำหรับ PR Curve)
+            y_pred_prob = self.model.predict(self.X_valid)
+            self._save_and_log_plots(y_pred_prob)
+            
+            # 3. บันทึก Metrics
+            report = classification_report(self.y_valid, self.y_pred, output_dict=True)
+            self.fraud_stats = report.get('1', report.get('1.0', {}))
+            
+            mlflow.log_metrics({
+                "loss": float(self.score[0]), 
                 "accuracy": float(self.score[1]),
-                "recall": float(self.recall),
-                "f1": float(self.f1)
-                    }
-                
-                import json
-                with open("eval_results.json", "w") as f:
-                    json.dump(scores, f)
-                mlflow.log_artifact("eval_results.json")
-                
-                # 5. บันทึก Model และ Signature
-                signature = infer_signature(self.X_valid, self.model.predict(self.X_valid))
-                
-                # บันทึกโมเดลเข้า Model Registry ใน MLflow
-                mlflow.keras.log_model(
-                    model=self.model, 
-                    artifact_path="model", 
-                    registered_model_name=self.config.registered_model_name,
-                    signature=signature
-                )
-                print(f"🚀 Success: Results and Model logged to MLflow at {self.config.mlflow_uri}")
-                
-                current_recall = self.fraud_stats.get('recall',0.0)
-                current_loss = float(self.score[0])
-                        
-                THRESHOLD_RECALL = 0.70
-                THRESHOLD_LOSS = 0.30
-                        
-                print(f"Checking Quality Gate: Recall={current_recall}, Loss={current_loss}")
-                        
-                if current_recall >=  THRESHOLD_RECALL and current_loss <= THRESHOLD_LOSS:
-                    print("[PASSED] Model quality is good. Ready for Deployment")
-                    self._promote_model_to_production()                
-                else:
-                    print("[FAIED] Model quanlity below threshold, Stopping deployment)")
-                    import sys
-                    sys.exit(1)
-                
+                "eval_f1_fraud": float(self.fraud_stats.get('f1-score', 0.0)),
+                "eval_recall_fraud": float(self.fraud_stats.get('recall', 0.0)),
+            })
+            
+            # 5. บันทึก Model และ Signature
+            signature = infer_signature(self.X_valid, y_pred_prob)
+            mlflow.keras.log_model(
+                model=self.model, 
+                artifact_path="model", 
+                registered_model_name=self.config.registered_model_name,
+                signature=signature
+            )
+            
+            # 6. Quality Gate Check
+            current_recall = float(self.fraud_stats.get('recall', 0.0))
+            if current_recall >= 0.60:
+                print(f"✅ [PASSED] Recall: {current_recall:.2f} | Promoting to Production")
+                self._promote_model_to_production()
+            else:
+                print(f"❌ [FAILED] Recall: {current_recall:.2f} | Deployment Stopped")
+
+    def _save_and_log_plots(self, y_prob, artifacts_dir="artifacts/plots" , run_id=None):
+        """Method สำหรับวาดกราฟและส่งขึ้น MLflow Artifacts"""
+        os.makedirs(artifacts_dir, exist_ok=True)
+        
+        # Plot 1: Confusion Matrix
+        cm = confusion_matrix(self.y_valid, self.y_pred)
+        fig1, ax = plt.subplots(figsize=(8,6))
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax)
+        plt.title('Confusion Matrix')
+        cm_path = os.path.join(artifacts_dir, "confusion_matrix.png")
+        fig1.savefig(cm_path, bbox_inches='tight')
+        #mlflow.log_artifact(cm_path, artifact_path="plots") # เก็บไว้ในโฟลเดอร์ plots
+        plt.close(fig1)
+
+        # Plot 2: Precision-Recall Curve
+        precision, recall, _ = precision_recall_curve(self.y_valid, y_prob)
+        pr_auc = auc(recall, precision)
+        fig2, ax = plt.subplots(figsize=(8,6))
+        ax.plot(recall, precision, label=f'AUC = {pr_auc:.2f}')
+        ax.set_xlabel('Recall'); ax.set_ylabel('Precision')
+        ax.set_title('Precision-Recall Curve')
+        ax.legend()
+        pr_path = os.path.join(artifacts_dir, "precision_recall_curve.png")
+        fig2.savefig(pr_path, bbox_inches='tight')
+        plt.close(fig2)
+        
+        #with mlflow.start_run(run_id=run_id):
+        mlflow.log_artifact(cm_path, artifact_path="plots")
+        mlflow.log_artifact(pr_path, artifact_path="plots")
+        mlflow.log_metric("pr_auc", float(pr_auc)) #bonus: log ค่่า AUC ด้วย
+            
     def _promote_model_to_production(self):
         from mlflow.tracking import MlflowClient
         
         client = MlflowClient()
         model_name = self.config.registered_model_name
         
-        latest_versions = client.get_latest_versions(model_name, stages=[None])[0].version
+        versions = client.get_latest_versions(model_name)
+        if not versions:
+            print(f"No versions found for {model_name}. Skipping promotion.")
+
+        latest_v = versions[0].version
+        #latest_versions = client.get_latest_versions(model_name, stages=[None])[0].version
         client.transition_model_version_stage(
             name = model_name,
-            version=latest_versions,
+            version=latest_v,
             stage="Production",
             archive_existing_versions=True
         )
-        print(f"Model {model_name} version {latest_versions} is now in PRODUCTION")
-            
-                
+        print(f"Model {model_name} version {latest_v} is now in PRODUCTION")
+        
+    

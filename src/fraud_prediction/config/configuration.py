@@ -111,7 +111,7 @@ class ConfigurationManager:
         # สร้าง directory สำหรับเก็บผล monitoring
         create_directories([Path(config.root_dir)])
     
-        return MonitoringConfig(
+        monitoring_config = MonitoringConfig(
             root_dir=Path(config.root_dir),
             # ใช้ unzip_dir จาก data_ingestion เพื่อไปหา test.csv
             training_data=Path(self.config.data_ingestion.unzip_dir), 
@@ -121,3 +121,5 @@ class ConfigurationManager:
             experiment_name=self.config.evaluation.experiment_name,
             drift_report_path=Path(config.drift_report_path)
         )
+        
+        return monitoring_config

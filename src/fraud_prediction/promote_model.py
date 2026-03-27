@@ -8,7 +8,7 @@ def promote_latest_to_production(model_name: str):
   client = MlflowClient()
   
   try:
-    latest_versions = client.get_latest_versions(model_name, stages=["None"])
+    latest_versions = client.get_latest_versions(model_name)
     if not latest_versions:
       print(f"Not found the latest in '{model_name}' ")
       return

@@ -24,7 +24,7 @@ evaluation:
   path_of_model: artifacts/training/model.keras
   training_data: artifacts/data_ingestion
   mlflow_uri: "http://10.1.0.150:5000"
-  experiment_name: "Fraud_Detection_v1"
+  experiment_name: "Fraud_Detection_v2"
   registered_model_name: "FraudDetection_Model"
 
 model_monitoring:

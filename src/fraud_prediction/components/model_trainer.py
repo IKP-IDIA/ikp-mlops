@@ -125,10 +125,7 @@ class Training:
 
             print(f"🚀 Starting training on MLflow: {mlflow.get_tracking_uri()}")
             
-            self.save_model(
-                path=self.config.trained_model_path,
-                model=self.model
-            )
+            #self.save_model(path=self.config.trained_model_path,model=self.model)
 
             # 2. เริ่มต้นบันทึกผล
             with mlflow.start_run(run_name="Model_Training_Fit", nested=True):
@@ -145,9 +142,12 @@ class Training:
                     classes=classes,
                     y=self.y_train
                 )
-                class_weights = dict(zip(classes, weights))
+                #class_weights = dict(zip(classes, weights))
+                class_weights = {0: 1.0, 1: 5.0}
                 
-                print(f"⚖️ Calculated Class Weights: {class_weights}")
+                #print(f"⚖️ Calculated Class Weights: {class_weights}")
+                print(f"Using fixed class weights: {class_weights}")
+                
                 # บันทึกน้ำหนักลง MLflow ด้วยเพื่อให้ตรวจสอบได้ย้อนหลัง
                 mlflow.log_params({
                     "class_weight_0": class_weights[0],
@@ -177,7 +177,7 @@ class Training:
                 
                 # คำนวณ Metrics หลังเทรนเสร็จ
                 y_pred_prob = self.model.predict(X_valid_tensor)
-                y_pred = (y_pred_prob > 0.7).astype(int)
+                y_pred = (y_pred_prob > 0.50).astype(int)
                 
                 recall = recall_score(self.y_valid, y_pred)
                 precision = precision_score(self.y_valid, y_pred, zero_division=0)
@@ -187,9 +187,11 @@ class Training:
                 mlflow.log_metrics({
                     "final_recall": recall, 
                     "final_precision": precision, 
-                    "final_f1_score": f1
+                    "final_f1_score": f1,
+                    "threshold_used": 0.50
                 })
                 
+            self.save_model(path=self.config.trained_model_path,model=self.model)
                 # บันทึกตัวโมเดลไว้ใน artifacts
                 #mlflow.log_artifact(self.config.trained_model_path)
 

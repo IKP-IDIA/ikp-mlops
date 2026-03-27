@@ -1,16 +1,16 @@
 # จำนวน Epochs ในการเทรน
 EPOCHS: 100
 # จำนวนข้อมูลต่อรอบการเทรน
-BATCH_SIZE: 1024
+BATCH_SIZE: 2048
 # การขยายข้อมูล (สำหรับตารางมักเป็น False หรือไม่ต้องใส่)
 AUGMENTATION: False
 # สำคัญ: จำนวนคอลัมน์ Feature ใน CSV ของคุณ (เช่น 7)
 NUM_FEATURES: 13
 # อัตราการเรียนรู้ของโมเดล
-LEARNING_RATE: 0.001
+LEARNING_RATE: 0.0005
 HIDDEN_UNITS: [32, 16] # ลองปรับโครงสร้าง Layer
-DROPOUT_RATE: 0.3
+DROPOUT_RATE: 0.2
 # พารามิเตอร์เดิมจาก VGG16 (เก็บไว้กันโค้ดพังแต่ไม่ได้ใช้ใน ANN)
-SAMPLING_RATIO : 10
+SAMPLING_RATIO : 50
 INCLUDE_TOP: False
 CLASSES: 1  # 1 สำหรับ Binary Classification (Fraud หรือไม่)
