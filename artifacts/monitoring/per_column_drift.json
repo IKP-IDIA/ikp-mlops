@@ -1,0 +1,57 @@
+{
+  "isFraud": {
+    "drift_score": 0.0,
+    "drift_detected": false,
+    "stattest": "Jensen-Shannon distance"
+  },
+  "amount": {
+    "drift_score": 0.0,
+    "drift_detected": false,
+    "stattest": "Wasserstein distance (normed)"
+  },
+  "diff_new_old_balance": {
+    "drift_score": 0.0,
+    "drift_detected": false,
+    "stattest": "Wasserstein distance (normed)"
+  },
+  "diff_new_old_destiny": {
+    "drift_score": 0.0,
+    "drift_detected": false,
+    "stattest": "Wasserstein distance (normed)"
+  },
+  "newbalanceDest": {
+    "drift_score": 0.0,
+    "drift_detected": false,
+    "stattest": "Wasserstein distance (normed)"
+  },
+  "newbalanceOrig": {
+    "drift_score": 0.0,
+    "drift_detected": false,
+    "stattest": "Wasserstein distance (normed)"
+  },
+  "oldbalanceDest": {
+    "drift_score": 0.0,
+    "drift_detected": false,
+    "stattest": "Wasserstein distance (normed)"
+  },
+  "oldbalanceOrg": {
+    "drift_score": 0.0,
+    "drift_detected": false,
+    "stattest": "Wasserstein distance (normed)"
+  },
+  "nameDest": {
+    "drift_score": 0.0,
+    "drift_detected": false,
+    "stattest": "Jensen-Shannon distance"
+  },
+  "nameOrig": {
+    "drift_score": 0.0,
+    "drift_detected": false,
+    "stattest": "Jensen-Shannon distance"
+  },
+  "type": {
+    "drift_score": 0.0,
+    "drift_detected": false,
+    "stattest": "Jensen-Shannon distance"
+  }
+}

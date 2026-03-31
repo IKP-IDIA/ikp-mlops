@@ -1,5 +1,6 @@
 FROM python:3.10-slim
 
+RUN pip install mlflow[auth] boto3 pymysql
 # ติดตั้ง dependencies สำหรับระบบ
 RUN apt-get update && apt-get install -y \
     curl \

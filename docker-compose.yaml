@@ -1,4 +1,4 @@
-version: '3'
+#version: '3'
 
 name: mlops-stack
 services:
@@ -46,12 +46,20 @@ services:
       - ${MLFLOW_HOST_PORT}:${MLFLOW_CONT_PORT}
     volumes:
       - ${MLFLOW_HOST_CONFIG_PATH}:${MLFLOW_CONT_CONFIG_PATH}
+      - ./mlflow/data:/mlflow/db_data
     environment:
       - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER}
       - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD}
+      - MLFLOW_S3_ENDPOINT_URL=	http://10.1.0.250:9000
+      - MLFLOW_S3_IGNORE_TLS=true
     env_file:
       - .env
-    command: mlflow server --app-name basic-auth
+    command: >
+      mlflow server 
+      --host 0.0.0.0 
+      --port 5000 
+      --backend-store-uri sqlite:////mlflow/db_data/mlflow.db 
+      --default-artifact-root s3://mlflow/
     networks:
       - mlops-net
     restart: unless-stopped

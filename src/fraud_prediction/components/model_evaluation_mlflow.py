@@ -8,15 +8,20 @@ from urllib.parse import urlparse
 from fraud_prediction.utils.common import save_json 
 import os
 import glob
+import json
 from mlflow.models.signature import infer_signature
 from fraud_prediction.entity.config_entity import EvaluationConfig
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-from sklearn.metrics import confusion_matrix, classification_report, auc, confusion_matrix, ConfusionMatrixDisplay,precision_recall_curve
+from sklearn.metrics import (
+    precision_score, recall_score, f1_score,
+    confusion_matrix, classification_report,
+    auc, precision_recall_curve, roc_curve, roc_auc_score
+)
 from datetime import datetime
 import joblib
+
 
 class Evaluation:
     def __init__(self, config: EvaluationConfig): 
@@ -38,13 +43,10 @@ class Evaluation:
         
         else:
             csv_files = glob.glob(os.path.join(data_dir, "*.csv"))
-
             if not csv_files:
                 csv_files = glob.glob(os.path.join(data_dir, "**", "*.csv"), recursive=True)
-
             if not csv_files:
                 raise FileNotFoundError(f"Not found file .csv in: {os.path.abspath(data_dir)}")
-        
             target_file = csv_files[0]
         
         print(f" Found data file: {target_file}")
@@ -56,7 +58,6 @@ class Evaluation:
         
         cols_to_drop = ['nameOrig', 'nameDest', 'isFlaggedFraud','step_weeks', 'step_days'] 
         df = df.drop(columns=[c for c in cols_to_drop if c in df.columns], errors='ignore')
-
         # Important to put dtype = int bc about error while doing One-Hot
         df = pd.get_dummies(df, columns=['type'], dtype=int)
         df = df.dropna()
@@ -67,8 +68,7 @@ class Evaluation:
 
         # 3. Scaling (ในระบบจริงควรโหลด scaler ที่ Save ไว้มาใช้ แต่ตอนนี้ทำใหม่เพื่อ Test)
         #scaler = MinMaxScaler()
-        scaler_path = os.path.join(
-            os.path.dirname(self.config.path_of_model), "scaler.pkl")
+        scaler_path = os.path.join(os.path.dirname(self.config.path_of_model), "scaler.pkl")
         scaler = joblib.load(scaler_path)
         X_scaled = scaler.transform(X)
         
@@ -93,7 +93,8 @@ class Evaluation:
         self.score = self.model.evaluate(self.X_valid, self.y_valid) # [loss, accuracy]
         
         self.save_score()
-        
+    
+    
     def run_tuning(self, learning_rates=[0.01, 0.001, 0.0001], batch_sizes=[32, 64]):
         """ฟังก์ชันสำหรับ Tuning Hyperparameters และบันทึกผลแยกตาม Run"""
         mlflow.set_tracking_uri(self.config.mlflow_uri)
@@ -138,7 +139,7 @@ class Evaluation:
         auto_run_name = f"Model_Evaluation_{now}"
 
         with mlflow.start_run(run_name=auto_run_name, nested=True) as run:
-            # 1. บันทึก Parameters
+            #---- Paramter ----
             params = self.config.all_params
             mlflow.log_params({
                 "epochs": int(params.EPOCHS),
@@ -147,22 +148,43 @@ class Evaluation:
                 "num_features": int(params.NUM_FEATURES)
             })
             
-            # 2. ทำการ Predict เพื่อเอาค่า Probability (สำหรับ PR Curve)
+            # ---- Predict ----
             y_pred_prob = self.model.predict(self.X_valid)
-            self._save_and_log_plots(y_pred_prob)
             
-            # 3. บันทึก Metrics
+            # ---- Plots (render ได้ใน MLflow UI) ----
+            artifacts_dir = "artifacts/model_evaluation/plots"
+            self._save_and_log_plots(y_pred_prob, artifacts_dir=artifacts_dir)
+            
+            # ---- Metrics ----
             report = classification_report(self.y_valid, self.y_pred, output_dict=True)
             self.fraud_stats = report.get('1', report.get('1.0', {}))
             
+            roc_auc = roc_auc_score(self.y_valid, y_pred_prob)
+ 
             mlflow.log_metrics({
-                "loss": float(self.score[0]), 
-                "accuracy": float(self.score[1]),
-                "eval_f1_fraud": float(self.fraud_stats.get('f1-score', 0.0)),
-                "eval_recall_fraud": float(self.fraud_stats.get('recall', 0.0)),
+                "loss":               float(self.score[0]),
+                "accuracy":           float(self.score[1]),
+                "eval_f1_fraud":      float(self.fraud_stats.get('f1-score', 0.0)),
+                "eval_recall_fraud":  float(self.fraud_stats.get('recall', 0.0)),
+                "eval_precision_fraud": float(self.fraud_stats.get('precision', 0.0)),
+                "roc_auc":            float(roc_auc),
             })
             
-            # 5. บันทึก Model และ Signature
+            # ✅ classification_report.json — artifact สำหรับดูรายละเอียดทุก class
+            os.makedirs("artifacts/model_evaluation", exist_ok=True)
+            report_path = "artifacts/model_evaluation/classification_report.json"
+            with open(report_path, "w") as f:
+                json.dump(report, f, indent=2)
+            mlflow.log_artifact(local_path=report_path, artifact_path="evaluation")
+            
+            # scores.json
+            scores ={"loss":float(self.score[0]), "accuracy":float(self.score[1])}
+            scores_path = "artifacts/model_evaluation/scores.json"
+            with open(scores_path, "w") as f:
+                json.dump(scores, f, indent=2)
+            mlflow.log_artifact(scores_path, artifact_path="evaluation")
+            
+            #----Register model----            
             signature = infer_signature(self.X_valid, y_pred_prob)
             mlflow.keras.log_model(
                 model=self.model, 
@@ -171,7 +193,7 @@ class Evaluation:
                 signature=signature
             )
             
-            # 6. Quality Gate Check
+            #----Quanlity Gate----
             current_recall = float(self.fraud_stats.get('recall', 0.0))
             if current_recall >= 0.60:
                 print(f"✅ [PASSED] Recall: {current_recall:.2f} | Promoting to Production")
@@ -180,39 +202,77 @@ class Evaluation:
                 print(f"❌ [FAILED] Recall: {current_recall:.2f} | Deployment Stopped")
 
     def _save_and_log_plots(self, y_prob, artifacts_dir="artifacts/plots" , run_id=None):
-        """Method สำหรับวาดกราฟและส่งขึ้น MLflow Artifacts"""
         os.makedirs(artifacts_dir, exist_ok=True)
         
-        # Plot 1: Confusion Matrix
+        # ✅ Plot 1: Confusion Matrix
         cm = confusion_matrix(self.y_valid, self.y_pred)
-        fig1, ax = plt.subplots(figsize=(8,6))
-        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax)
-        plt.title('Confusion Matrix')
+        fig, ax = plt.subplots(figsize=(7, 5))
+        sns.heatmap(
+            cm, annot=True, fmt='d', cmap='Blues', ax=ax,
+            xticklabels=['Normal', 'Fraud'],
+            yticklabels=['Normal', 'Fraud'],
+        )
+        ax.set_xlabel("Predicted")
+        ax.set_ylabel("Actual")
+        ax.set_title("Confusion Matrix")
         cm_path = os.path.join(artifacts_dir, "confusion_matrix.png")
-        fig1.savefig(cm_path, bbox_inches='tight')
-        #mlflow.log_artifact(cm_path, artifact_path="plots") # เก็บไว้ในโฟลเดอร์ plots
-        plt.close(fig1)
-
-        # Plot 2: Precision-Recall Curve
-        precision, recall, _ = precision_recall_curve(self.y_valid, y_prob)
-        pr_auc = auc(recall, precision)
-        fig2, ax = plt.subplots(figsize=(8,6))
-        ax.plot(recall, precision, label=f'AUC = {pr_auc:.2f}')
-        ax.set_xlabel('Recall'); ax.set_ylabel('Precision')
-        ax.set_title('Precision-Recall Curve')
-        ax.legend()
-        pr_path = os.path.join(artifacts_dir, "precision_recall_curve.png")
-        fig2.savefig(pr_path, bbox_inches='tight')
-        plt.close(fig2)
-        
-        #with mlflow.start_run(run_id=run_id):
+        fig.savefig(cm_path, bbox_inches='tight', dpi=100)
+        plt.close(fig)
         mlflow.log_artifact(cm_path, artifact_path="plots")
+ 
+        # ✅ Plot 2: Precision-Recall Curve
+        precision_vals, recall_vals, _ = precision_recall_curve(self.y_valid, y_prob)
+        pr_auc = auc(recall_vals, precision_vals)
+        fig, ax = plt.subplots(figsize=(7, 5))
+        ax.plot(recall_vals, precision_vals, color='steelblue', lw=2, label=f'PR AUC = {pr_auc:.3f}')
+        ax.fill_between(recall_vals, precision_vals, alpha=0.1, color='steelblue')
+        ax.set_xlabel('Recall')
+        ax.set_ylabel('Precision')
+        ax.set_title('Precision-Recall Curve')
+        ax.legend(loc='upper right')
+        ax.grid(alpha=0.3)
+        pr_path = os.path.join(artifacts_dir, "precision_recall_curve.png")
+        fig.savefig(pr_path, bbox_inches='tight', dpi=100)
+        plt.close(fig)
         mlflow.log_artifact(pr_path, artifact_path="plots")
-        mlflow.log_metric("pr_auc", float(pr_auc)) #bonus: log ค่่า AUC ด้วย
+        mlflow.log_metric("pr_auc", float(pr_auc))
+ 
+        # ✅ Plot 3: ROC Curve (เพิ่มใหม่)
+        fpr, tpr, _ = roc_curve(self.y_valid, y_prob)
+        roc_auc = auc(fpr, tpr)
+        fig, ax = plt.subplots(figsize=(7, 5))
+        ax.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC AUC = {roc_auc:.3f}')
+        ax.plot([0, 1], [0, 1], color='gray', linestyle='--', lw=1)
+        ax.fill_between(fpr, tpr, alpha=0.1, color='darkorange')
+        ax.set_xlabel('False Positive Rate')
+        ax.set_ylabel('True Positive Rate')
+        ax.set_title('ROC Curve')
+        ax.legend(loc='lower right')
+        ax.grid(alpha=0.3)
+        roc_path = os.path.join(artifacts_dir, "roc_curve.png")
+        fig.savefig(roc_path, bbox_inches='tight', dpi=100)
+        plt.close(fig)
+        mlflow.log_artifact(roc_path, artifact_path="plots")
+        mlflow.log_metric("roc_auc", float(roc_auc))
+ 
+        # ✅ Plot 4: Score distribution (prob histogram แยก fraud vs normal)
+        fig, ax = plt.subplots(figsize=(7, 5))
+        y_prob_flat = y_prob.flatten()
+        ax.hist(y_prob_flat[self.y_valid == 0], bins=50, alpha=0.6, color='steelblue', label='Normal')
+        ax.hist(y_prob_flat[self.y_valid == 1], bins=50, alpha=0.6, color='tomato',    label='Fraud')
+        ax.axvline(x=0.5, color='black', linestyle='--', lw=1, label='Threshold 0.5')
+        ax.set_xlabel('Predicted probability')
+        ax.set_ylabel('Count')
+        ax.set_title('Score Distribution')
+        ax.legend()
+        ax.grid(alpha=0.3)
+        dist_path = os.path.join(artifacts_dir, "score_distribution.png")
+        fig.savefig(dist_path, bbox_inches='tight', dpi=100)
+        plt.close(fig)
+        mlflow.log_artifact(dist_path, artifact_path="plots")
             
     def _promote_model_to_production(self):
         from mlflow.tracking import MlflowClient
-        
         client = MlflowClient()
         model_name = self.config.registered_model_name
         
