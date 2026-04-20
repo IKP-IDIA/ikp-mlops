@@ -1,0 +1,20 @@
+apiVersion: "serving.kserve.io/v1beta1"
+kind: "InferenceService"
+metadata:
+  name: "fraud-detection"
+spec:
+  predictor:
+    containers:
+      - image: <your-registry-url>/fraud-model:latest  # ใช้ Image ที่เรา Push ไป
+        name: kserve-container
+        env:
+          - name: MINIO_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: minio-creds
+                key: access_key
+          - name: MINIO_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: minio-creds
+                key: secret_key

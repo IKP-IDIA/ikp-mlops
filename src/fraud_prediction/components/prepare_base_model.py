@@ -21,8 +21,12 @@ class PrepareBaseModel:
         self.save_model(path=self.config.base_model_path, model=self.model)
 
     def update_base_model(self):
+        input_dim = self.config.params_num_features
+        
         full_model = tf.keras.models.Sequential([
-            self.model,
+            tf.keras.layers.Input(shape=(input_dim,)),
+            tf.keras.layers.Dense(64, activation='relu'),
+            tf.keras.layers.Dense(32, activation='relu'),
             tf.keras.layers.Dense(self.config.params_classes, activation='sigmoid')
         ])
         full_model.compile(

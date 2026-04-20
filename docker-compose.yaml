@@ -22,26 +22,23 @@ services:
   #   restart: unless-stopped
 
   # postgres:
-  #   image: postgres:latest
+  #   image: postgres:15
   #   container_name: postgres_mlops
   #   ports:
-  #     - ${POSTGRES_HOST_PORT}:${POSTGRES_CONT_PORT}
+  #     - "5432:5432"
   #   volumes:
-  #     - ./postgres/init/init.sql:/docker-entrypoint-initdb.d/init.sql
-  #     - ./postgres/data:/var/lib/postgresql/data
-  #   env_file:
-  #     - .env
+  #     - ./postgres/data:/var/lib/postgresql/data 
+  #   environment:
+  #     POSTGRES_USER: mlflow
+  #     POSTGRES_PASSWORD: mlflow123
+  #     POSTGRES_DB: mlflow
   #   networks:
   #     - mlops-net
   #   restart: unless-stopped
 
   mlflow:
     build: ./mlflow
-    image: mlflow
     container_name: mlflow_mlops
-    #depends_on:
-      #- minio
-      #- postgres
     ports:
       - ${MLFLOW_HOST_PORT}:${MLFLOW_CONT_PORT}
     volumes:
@@ -50,16 +47,33 @@ services:
     environment:
       - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER}
       - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD}
-      - MLFLOW_S3_ENDPOINT_URL=	http://10.1.0.250:9000
+      - MLFLOW_S3_ENDPOINT_URL=http://10.1.0.250:9000
       - MLFLOW_S3_IGNORE_TLS=true
-    env_file:
-      - .env
+      #- MLFLOW_HTTP_CORS_ALLOW_ORIGIN=http://10.1.0.150:5000,http://localhost:5000
+      #- MLFLOW_HTTP_CORS_ALLOW_METHODS=GET,POST,OPTIONS,PUT
     command: >
-      mlflow server 
-      --host 0.0.0.0 
-      --port 5000 
-      --backend-store-uri sqlite:////mlflow/db_data/mlflow.db 
+      mlflow server
+      --host 0.0.0.0
+      --port 5000
+      --backend-store-uri sqlite:////mlflow/db_data/mlflow.db
       --default-artifact-root s3://mlflow/
+      --serve-artifacts
+
+    networks:
+      - mlops-net
+    restart: unless-stopped
+
+  fraud-api:
+    build: ./app
+    container_name: fraud_api
+    ports:
+      - "8000:8000"
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - MLFLOW_S3_ENDPOINT_URL=http://10.1.0.250:9000
+      - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER}
+      - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD}
+      - MLFLOW_S3_IGNORE_TLS=true
     networks:
       - mlops-net
     restart: unless-stopped

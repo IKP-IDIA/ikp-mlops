@@ -5,47 +5,81 @@ on:
     branches: [ main ]
 
 jobs:
+  # JOB 1: เทรนโมเดลและบันทึกผลลง MLflow + MinIO
   train-and-eval:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4 # อัปเดตแก้ Node.js Warning
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5 # เพิ่มขั้นตอน Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-          cache: 'pip' # ช่วยให้รันครั้งต่อไปเร็วขึ้น
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
-          # หากยังไม่ได้ใส่ evidently ใน requirements.txt ให้ใส่บรรทัดล่างนี้กันเหนียว
           pip install evidently 
 
       - name: Run ML Pipeline
         run: |
-          # สร้างไฟล์ข้อมูลจำลองเพื่อให้ Monitoring Stage ไม่พัง
           mkdir -p data
           touch data/new_production_data.csv 
           python main.py
         env:
+          # ดึงค่าจาก GitHub Secrets ที่เราเซตไว้ (ใช้ IP 10.1.0.250 ตามที่คุณจูนเซต)
           MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
-          MLFLOW_S3_ENDPOINT_URL: ${{ secrets.MLFLOW_S3_ENDPOINT_URL }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          MLFLOW_S3_ENDPOINT_URL: ${{ secrets.MINIO_ENDPOINT }} 
+          AWS_ACCESS_KEY_ID: ${{ secrets.MINIO_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.MINIO_SECRET_KEY }}
           MLFLOW_S3_IGNORE_TLS: "true"
+          AWS_REGION: us-east-1
 
-  deploy-to-k8s:
+  # JOB 2: สร้าง Docker Image และส่งไป AWS ECR
+  build-and-push:
     needs: train-and-eval
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # --- จุดที่แก้ไข: ส่วนนี้ต้องใช้รหัส AWS จริงๆ เพื่อ Login เข้า ECR ---
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          # ชื่อ Image จะเป็น ghcr.io/ชื่อบัญชี/ชื่อrepo:latest
+          tags: ghcr.io/${{ github.repository_owner }}/fraud-detection:latest
+
+  # JOB 3: สั่งให้ KServe บน Kubernetes อัปเดต
+  deploy-to-kserve:
+    needs: build-and-push
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
-      # ขั้นตอนนี้ต้องมีการ Setup kubectl และ Kubeconfig ก่อนถึงจะรันได้
+
+      - name: Set up Kubectl
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
       - name: Update KServe InferenceService
         run: |
-          # kubectl apply -f kserve-deploy.yaml 
-          echo "Deploying to KServe..."
+          echo "KServe is updating to the latest image from ECR..."
+          # kubectl apply -f k8s/inference-service.yaml

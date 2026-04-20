@@ -1,6 +1,7 @@
 import os
 from box.exceptions import BoxValueError
 import yaml
+import pandas as pd
 from fraud_prediction import logger
 import json
 import joblib
@@ -133,3 +134,29 @@ def decodeImage(imgstring, fileName):
 def encodeImageIntoBase64(croppedImagePath):
     with open(croppedImagePath, "rb") as f:
         return base64.b64encode(f.read())
+    
+@ensure_annotations
+def preprocess_fraud_data(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    ทำ Feature Engineering 11 -> 13 features ตามที่เทสต์ผ่านใน app.py
+    """
+    # 1. สร้างฟีเจอร์ใหม่
+    df['diff_new_old_balance'] = df['newbalanceOrig'] - df['oldbalanceOrg']
+    df['diff_new_old_destiny'] = df['newbalanceDest'] - df['oldbalanceDest']
+    
+    # 2. จัดการ One-Hot Encoding (Type Dummies)
+    # หมายเหตุ: ต้องมั่นใจว่าลำดับคอลัมน์เหมือนกับที่ใช้ตอนเทรนเป๊ะๆ
+    types = ["CASH_IN", "CASH_OUT", "DEBIT", "PAYMENT", "TRANSFER"]
+    for t in types:
+        df[f'type_{t}'] = df['type'].apply(lambda x: 1.0 if x == t else 0.0)
+    
+    # 3. เลือกเฉพาะคอลัมน์ที่โมเดลต้องการรัน
+    final_features = [
+        'step', 'amount', 'oldbalanceOrg', 'newbalanceOrig', 
+        'oldbalanceDest', 'newbalanceDest', 'diff_new_old_balance', 
+        'diff_new_old_destiny', 'type_CASH_IN', 'type_CASH_OUT', 
+        'type_DEBIT', 'type_PAYMENT', 'type_TRANSFER'
+    ]
+    
+    # บังคับเป็น float32 และ return ออกไปเลย
+    return df[final_features].astype('float32')

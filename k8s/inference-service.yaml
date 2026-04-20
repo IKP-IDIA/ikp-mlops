@@ -1,0 +1,30 @@
+apiVersion: "serving.kserve.io/v1beta1"
+kind: "InferenceService"
+metadata:
+  name: "fraud-detection"
+  namespace: "default"
+spec:
+  predictor:
+    containers:
+      - name: kserve-container
+        image: ghcr.io/artitayan/fraud-detection:latest
+        env:
+          - name: MLFLOW_S3_ENDPOINT_URL
+            value: "http://10.1.0.250:9000"
+          - name: MINIO_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: minio-creds
+                key: access_key
+          - name: MINIO_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: minio-creds
+                key: secret_key
+        resources:
+          limits:
+            cpu: "1"
+            memory: "4Gi"
+          requests:
+            cpu: "1"
+            memory: "2Gi"

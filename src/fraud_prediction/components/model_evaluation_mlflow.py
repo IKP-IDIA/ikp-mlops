@@ -29,7 +29,7 @@ class Evaluation:
 
     @mlflow.trace(name="Model_Loading") 
     @staticmethod
-    def load_model(path: Path) -> tf.keras.Model:
+    def load_model(self, path: StopAsyncIteration) -> tf.keras.Model:
         return tf.keras.models.load_model(str(path))
     
     @mlflow.trace(name="Data_Preparation")
