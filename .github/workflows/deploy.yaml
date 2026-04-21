@@ -17,10 +17,10 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install System Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libopenblas-dev liblapack-dev gfortran
+      # - name: Install System Dependencies
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y libopenblas-dev liblapack-dev gfortran
 
       - name: Install Python dependencies
         run: |
