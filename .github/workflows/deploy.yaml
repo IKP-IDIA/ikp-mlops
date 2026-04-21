@@ -7,6 +7,8 @@ on:
 jobs:
   # JOB 1: เทรนโมเดลและบันทึกผลลง MLflow + MinIO
   train-and-eval:
+    # หากยังไม่ได้ตั้ง Self-hosted Runner ให้ใช้ ubuntu-latest ไปก่อน
+    # แต่ระวังเรื่อง Private IP (10.1.0.250) ที่ GitHub อาจจะมองไม่เห็นครับ
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -16,21 +18,21 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-          cache: 'pip'
 
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
+          pip install wheel setuptools
           pip install -r requirements.txt
           pip install evidently 
 
       - name: Run ML Pipeline
         run: |
           mkdir -p data
+          # สร้างไฟล์ข้อมูลจำลองสำหรับ Pipeline
           touch data/new_production_data.csv 
           python main.py
         env:
-          # ดึงค่าจาก GitHub Secrets ที่เราเซตไว้ (ใช้ IP 10.1.0.250 ตามที่คุณจูนเซต)
           MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
           MLFLOW_S3_ENDPOINT_URL: ${{ secrets.MINIO_ENDPOINT }} 
           AWS_ACCESS_KEY_ID: ${{ secrets.MINIO_ACCESS_KEY }}
@@ -38,7 +40,7 @@ jobs:
           MLFLOW_S3_IGNORE_TLS: "true"
           AWS_REGION: us-east-1
 
-  # JOB 2: สร้าง Docker Image และส่งไป AWS ECR
+  # JOB 2: สร้าง Docker Image และส่งไป GHCR
   build-and-push:
     needs: train-and-eval
     runs-on: ubuntu-latest
@@ -49,7 +51,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # --- จุดที่แก้ไข: ส่วนนี้ต้องใช้รหัส AWS จริงๆ เพื่อ Login เข้า ECR ---
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -62,7 +63,7 @@ jobs:
         with:
           context: .
           push: true
-          # ชื่อ Image จะเป็น ghcr.io/ชื่อบัญชี/ชื่อrepo:latest
+          # ใช้ชื่อเดียวกับที่ push
           tags: ghcr.io/${{ github.repository_owner }}/fraud-detection:latest
 
   # JOB 3: สั่งให้ KServe บน Kubernetes อัปเดต
@@ -77,9 +78,10 @@ jobs:
         uses: azure/k8s-set-context@v3
         with:
           method: kubeconfig
+          # อย่าลืมเปลี่ยน 127.0.0.1 เป็น 10.1.0.250 ใน secret นี้ด้วยนะครับ
           kubeconfig: ${{ secrets.KUBE_CONFIG }}
 
       - name: Update KServe InferenceService
         run: |
-          echo "KServe is updating to the latest image from ECR..."
-          # kubectl apply -f k8s/inference-service.yaml
+          echo "KServe is updating to the latest image from GHCR..."
+          kubectl apply -f k8s/inference-service.yaml
