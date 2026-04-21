@@ -108,7 +108,8 @@ jobs:
   # JOB 3: อัปเดต KServe (รันบน GitHub Cloud)
   deploy-to-kserve:
     needs: build-and-push
-    runs-on: ubuntu-latest
+    # เปลี่ยนจาก ubuntu-latest เป็น self-hosted
+    runs-on: self-hosted 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -122,4 +123,5 @@ jobs:
       - name: Update KServe InferenceService
         run: |
           echo "KServe is updating to the latest image from GHCR..."
-          kubectl apply -f k8s/inference-service.yaml
+          # เพิ่ม --validate=false เผื่อไว้กรณี network ภายในหน่วง
+          kubectl apply -f k8s/inference-service.yaml --validate=false
