@@ -35,6 +35,7 @@ jobs:
         run: |
           mkdir -p data
           touch data/new_production_data.csv 
+          export PYTHONPATH=$PYTHONPATH:$(pwd)/src
           python main.py
         env:
           MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
