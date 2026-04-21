@@ -11,6 +11,7 @@ from fraud_prediction.config.configuration import ConfigurationManager
 
 from datetime import datetime
 from dotenv import load_dotenv
+#june
 
 load_dotenv()
 
