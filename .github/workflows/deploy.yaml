@@ -37,7 +37,7 @@ jobs:
           
           # 4. ตรวจสอบเวอร์ชันที่ติดตั้งจริงใน Log (เอาไว้เช็คถ้าพังอีก)
           pip show pydantic
-          
+
       - name: Install DVC
         run: pip install dvc dvc-s3  
 
@@ -52,8 +52,18 @@ jobs:
 
       - name: Run ML Pipeline
         run: |
+          # 1. สร้าง Virtual Environment ชั่วคราว
+          python -m venv venv
+          
+          # 2. Activate และติดตั้งสิ่งที่จำเป็นในสภาพแวดล้อมปิด
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install setuptools==69.5.1 wheel Cython
+          pip install -r requirements.txt
+          pip install evidently
+          
+          # 3. รันโปรแกรมผ่าน venv
           mkdir -p data
-          touch data/new_production_data.csv 
           export PYTHONPATH=$PYTHONPATH:$(pwd)/src
           python main.py
         env:
