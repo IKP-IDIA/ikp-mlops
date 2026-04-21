@@ -30,6 +30,17 @@ jobs:
           pip install -r requirements.txt
           pip install evidently
 
+      - name: Install DVC
+        run: pip install dvc dvc-s3  # หรือ dvc-gdrive ตามที่คุณจูนใช้
+
+      - name: DVC Pull Data
+        run: |
+          # ถ้าคุณจูนใช้ S3/MinIO ต้องส่งค่าผ่าน Env ด้วย
+          dvc pull -v
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.MINIO_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.MINIO_SECRET_KEY }}
+
       - name: Run ML Pipeline
         run: |
           mkdir -p data
