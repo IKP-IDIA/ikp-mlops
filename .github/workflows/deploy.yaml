@@ -7,8 +7,6 @@ on:
 jobs:
   # JOB 1: เทรนโมเดลและบันทึกผลลง MLflow + MinIO
   train-and-eval:
-    # หากยังไม่ได้ตั้ง Self-hosted Runner ให้ใช้ ubuntu-latest ไปก่อน
-    # แต่ระวังเรื่อง Private IP (10.1.0.250) ที่ GitHub อาจจะมองไม่เห็นครับ
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -19,17 +17,23 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libopenblas-dev liblapack-dev gfortran
+
+      - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
           pip install wheel setuptools
+          # บังคับลงเวอร์ชั่นที่เสถียรเพื่อป้องกัน Error Scipy
+          pip install "numpy>=1.23.5" "scipy>=1.10.1" 
           pip install -r requirements.txt
-          pip install evidently 
+          pip install evidently
 
       - name: Run ML Pipeline
         run: |
           mkdir -p data
-          # สร้างไฟล์ข้อมูลจำลองสำหรับ Pipeline
           touch data/new_production_data.csv 
           python main.py
         env:
@@ -63,7 +67,6 @@ jobs:
         with:
           context: .
           push: true
-          # ใช้ชื่อเดียวกับที่ push
           tags: ghcr.io/${{ github.repository_owner }}/fraud-detection:latest
 
   # JOB 3: สั่งให้ KServe บน Kubernetes อัปเดต
@@ -78,7 +81,6 @@ jobs:
         uses: azure/k8s-set-context@v3
         with:
           method: kubeconfig
-          # อย่าลืมเปลี่ยน 127.0.0.1 เป็น 10.1.0.250 ใน secret นี้ด้วยนะครับ
           kubeconfig: ${{ secrets.KUBE_CONFIG }}
 
       - name: Update KServe InferenceService
