@@ -5,9 +5,9 @@ on:
     branches: [ main ]
 
 jobs:
-  # JOB 1: เทรนโมเดลและบันทึกผลลง MLflow + MinIO
+  # JOB 1: เทรนโมเดลบนเครื่อง IKP-4090 (Self-hosted)
   train-and-eval:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,7 +26,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install wheel setuptools
-          # บังคับลงเวอร์ชั่นที่เสถียรเพื่อป้องกัน Error Scipy
           pip install "numpy>=1.23.5" "scipy>=1.10.1" 
           pip install -r requirements.txt
           pip install evidently
@@ -45,7 +44,7 @@ jobs:
           MLFLOW_S3_IGNORE_TLS: "true"
           AWS_REGION: us-east-1
 
-  # JOB 2: สร้าง Docker Image และส่งไป GHCR
+  # JOB 2: สร้าง Docker Image (รันบน GitHub Cloud ได้เลยเพื่อความเร็ว)
   build-and-push:
     needs: train-and-eval
     runs-on: ubuntu-latest
@@ -56,7 +55,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Log in to GitHub Container Registry
+      - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -70,7 +69,7 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/fraud-detection:latest
 
-  # JOB 3: สั่งให้ KServe บน Kubernetes อัปเดต
+  # JOB 3: อัปเดต KServe (รันบน GitHub Cloud)
   deploy-to-kserve:
     needs: build-and-push
     runs-on: ubuntu-latest

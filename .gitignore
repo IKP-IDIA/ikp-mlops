@@ -12,3 +12,4 @@ data/*
 
 *.xlsx
 *.csv
+actions-runner/
