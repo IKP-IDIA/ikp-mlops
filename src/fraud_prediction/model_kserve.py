@@ -30,7 +30,7 @@ class FraudModel(kserve.Model):
         self.ready = True
         print("--- Model Ready! ---")
 
-    def predict(self, payload: dict, headers: dict = None):
+    def predict(self, payload , headers: dict = None):
         # รับข้อมูล JSON
         instances = payload["instances"]
         df_raw = pd.DataFrame(instances)
@@ -40,7 +40,7 @@ class FraudModel(kserve.Model):
         
         # ทำนายผล
         prediction = self.model.predict(df_processed)
-        return {"predictions": prediction.tolist()}
+        return {"predictions": prediction.round(6).tolist()}
 
 if __name__ == "__main__":
     model = FraudModel("fraud-detection")

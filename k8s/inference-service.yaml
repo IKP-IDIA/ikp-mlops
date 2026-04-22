@@ -7,7 +7,7 @@ spec:
   predictor:
     containers:
       - name: kserve-container
-        image: ghcr.io/artitayan/fraud-detection:latest
+        image: ghcr.io/artitayan/fraud-detection:latest # มั่นใจว่าใช้ภาพที่คุณจูนแก้ .round(6) แล้ว
         env:
           - name: MLFLOW_S3_ENDPOINT_URL
             value: "http://10.1.0.250:9000"
@@ -25,6 +25,3 @@ spec:
           limits:
             cpu: "1"
             memory: "4Gi"
-          requests:
-            cpu: "1"
-            memory: "2Gi"
